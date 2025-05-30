@@ -1,0 +1,54 @@
+Build a fully functional MERN stack web application called SweetSpot – Artisan Dessert Marketplace. The app must include both a Customer Dashboard and a Vendor Dashboard, seamlessly connected in one unified React frontend using React Router.
+
+💻 Technical Requirements:
+Use MongoDB, Express.js, React.js, and Node.js only (no other backend or database).
+
+Frontend should use Tailwind CSS and must support dark mode.
+
+The app should be responsive and optimized for both desktop and mobile.
+
+All buttons and form actions must be fully functional (no placeholders).
+
+🎨 UI Design Requirements:
+The entire UI must be aesthetic, cute, Pinterest-style with soft pastel colors.
+
+Use rounded cards, smooth transitions, and modern layout.
+
+Dark mode should use deep purples/blues with contrasting pastel buttons.
+
+Use a sidebar or top navbar for navigation between sections.
+
+🛍️ Customer Dashboard Pages & Features:
+Home Page: Dessert grid with filters (by flavor, dietary, etc.), carousel, and hero section.
+
+Product Page: Detailed view with description, “Add to Cart,” “Favorite,” and “Subscribe” options.
+
+Cart Page: List items with quantity control, notes, and subtotal/total.
+
+Checkout Page: Form for delivery details + dummy payment simulation (no actual Stripe).
+
+Auth Pages: Login/Signup using JWT and bcrypt.
+
+Profile Page: View order history, manage subscriptions, wishlist/favorites.
+
+🍪 Vendor Dashboard Pages & Features:
+Dashboard Home: Overview cards (Sales, Orders, Inventory), dummy graph, recent activity.
+
+Add/Edit Product: Form with image upload, price, stock, tags.
+
+Manage Orders: View customer orders, update status (Pending → Delivered).
+
+Subscription Manager: View/manage subscribers and their dessert box preferences.
+
+Vendor Settings: Store details, password update, dummy payout info.
+
+💎 Bonus Touches (Optional but Preferred):
+Toast notifications for actions (e.g., “Added to cart”)
+
+Skeleton loaders while fetching data
+
+Role-based routing (customer vs vendor)
+
+All pages styled consistently with dark mode support
+
+Build everything in clean, reusable components and structure code well for maintainability. Use axios for API requests. All data should be stored in MongoDB using Mongoose.
