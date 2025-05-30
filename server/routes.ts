@@ -1,4 +1,5 @@
 import type { Express } from "express";
+import express from "express";
 import { createServer, type Server } from "http";
 import { setupAuth, isAuthenticated } from "./replitAuth";
 import { storage } from "./storage";
@@ -128,7 +129,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       res.status(201).json(product);
     } catch (error) {
       console.error("Error creating product:", error);
-      res.status(400).json({ message: "Failed to create product", error: error.message });
+      res.status(400).json({ message: "Failed to create product", error: error instanceof Error ? error.message : "Unknown error" });
     }
   });
 
@@ -161,7 +162,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       res.json(product);
     } catch (error) {
       console.error("Error updating product:", error);
-      res.status(400).json({ message: "Failed to update product", error: error.message });
+      res.status(400).json({ message: "Failed to update product" });
     }
   });
 
@@ -224,7 +225,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       res.status(201).json(cartItem);
     } catch (error) {
       console.error("Error adding to cart:", error);
-      res.status(400).json({ message: "Failed to add to cart", error: error.message });
+      res.status(400).json({ message: "Failed to add to cart" });
     }
   });
 
@@ -285,7 +286,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       res.status(201).json(favorite);
     } catch (error) {
       console.error("Error adding to favorites:", error);
-      res.status(400).json({ message: "Failed to add to favorites", error: error.message });
+      res.status(400).json({ message: "Failed to add to favorites" });
     }
   });
 
@@ -324,7 +325,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         : { customerId: userId };
       
       if (req.query.status) {
-        filters.status = req.query.status as string;
+        (filters as any).status = req.query.status as string;
       }
 
       const orders = await storage.getOrders(filters);
@@ -369,7 +370,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       res.status(201).json(order);
     } catch (error) {
       console.error("Error creating order:", error);
-      res.status(400).json({ message: "Failed to create order", error: error.message });
+      res.status(400).json({ message: "Failed to create order" });
     }
   });
 
@@ -428,7 +429,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       res.status(201).json(subscription);
     } catch (error) {
       console.error("Error creating subscription:", error);
-      res.status(400).json({ message: "Failed to create subscription", error: error.message });
+      res.status(400).json({ message: "Failed to create subscription" });
     }
   });
 
@@ -482,7 +483,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       res.status(201).json(review);
     } catch (error) {
       console.error("Error creating review:", error);
-      res.status(400).json({ message: "Failed to create review", error: error.message });
+      res.status(400).json({ message: "Failed to create review" });
     }
   });
 
