@@ -10,6 +10,10 @@ export default function Landing() {
     window.location.href = "/api/login";
   };
 
+  const handleSignup = () => {
+    window.location.href = "/api/login";
+  };
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-rose-50 via-pink-50 to-purple-50 dark:from-gray-900 dark:via-purple-900 dark:to-rose-900 relative overflow-hidden">
       {/* Background decorations */}
@@ -50,8 +54,16 @@ export default function Landing() {
                 )}
               </Button>
               
-              <Button onClick={handleLogin} className="gradient-sweet text-white shadow-lg hover:shadow-xl transform hover:scale-105 transition-all duration-200">
+              <Button 
+                variant="outline" 
+                onClick={handleLogin}
+                className="border-purple-200 hover:border-purple-300 dark:border-purple-700 dark:hover:border-purple-600 hover:bg-purple-50 dark:hover:bg-purple-900/20 transition-all duration-200"
+              >
                 Sign In
+              </Button>
+              
+              <Button onClick={handleSignup} className="gradient-sweet text-white shadow-lg hover:shadow-xl transform hover:scale-105 transition-all duration-200">
+                Get Started
               </Button>
             </div>
           </div>

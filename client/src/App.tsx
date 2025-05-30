@@ -7,6 +7,7 @@ import { queryClient } from "./lib/queryClient";
 import { useAuth } from "@/hooks/useAuth";
 import Layout from "@/components/layout/Layout";
 import Landing from "@/pages/Landing";
+import RoleSelection from "@/pages/RoleSelection";
 import CustomerHome from "@/pages/customer/Home";
 import Products from "@/pages/customer/Products";
 import ProductDetail from "@/pages/customer/ProductDetail";
@@ -40,20 +41,30 @@ function Router() {
     );
   }
 
+  // Show role selection for new users without a role
+  if (!user?.role || user.role === 'customer' && !user.role) {
+    return <RoleSelection />;
+  }
+
   return (
     <Layout>
       <Switch>
         {/* Customer routes */}
-        <Route path="/" component={CustomerHome} />
-        <Route path="/products" component={Products} />
-        <Route path="/products/:id" component={ProductDetail} />
-        <Route path="/cart" component={Cart} />
-        <Route path="/checkout" component={Checkout} />
-        <Route path="/profile" component={Profile} />
+        {user?.role === "customer" && (
+          <>
+            <Route path="/" component={CustomerHome} />
+            <Route path="/products" component={Products} />
+            <Route path="/products/:id" component={ProductDetail} />
+            <Route path="/cart" component={Cart} />
+            <Route path="/checkout" component={Checkout} />
+            <Route path="/profile" component={Profile} />
+          </>
+        )}
         
         {/* Vendor routes */}
         {user?.role === "vendor" && (
           <>
+            <Route path="/" component={VendorDashboard} />
             <Route path="/vendor/dashboard" component={VendorDashboard} />
             <Route path="/vendor/products" component={ProductManagement} />
             <Route path="/vendor/orders" component={OrderManagement} />
