@@ -1,130 +1,154 @@
-import { Link, useLocation } from "wouter";
-import { cn } from "@/lib/utils";
 import { useAuth } from "@/hooks/useAuth";
-import { useCart } from "@/components/ui/cart-provider";
+import { useCart } from "@/hooks/useCart";
+import { useLocation } from "wouter";
+import { Button } from "@/components/ui/button";
+import { Sheet, SheetContent } from "@/components/ui/sheet";
+import { useTheme } from "@/contexts/ThemeContext";
 import {
   Home,
+  Search,
   ShoppingCart,
   Heart,
   User,
-  BarChart3,
   Package,
-  Receipt,
+  BarChart3,
+  Plus,
+  ClipboardList,
   RotateCcw,
   Settings,
-  Store,
-  Cake,
+  Moon,
+  Sun,
+  Cookie,
 } from "lucide-react";
 
-interface NavItem {
-  path: string;
-  label: string;
-  icon: React.ComponentType<{ className?: string }>;
-  badge?: number | string;
+interface SidebarProps {
+  isOpen: boolean;
+  onClose: () => void;
 }
 
-export default function Sidebar() {
-  const [location] = useLocation();
+export default function Sidebar({ isOpen, onClose }: SidebarProps) {
   const { user } = useAuth();
-  const { state: cartState } = useCart();
+  const { cartCount } = useCart();
+  const [location, setLocation] = useLocation();
+  const { theme, toggleTheme } = useTheme();
 
-  const customerNavItems: NavItem[] = [
-    { path: "/", label: "Home", icon: Home },
-    { path: "/products", label: "Products", icon: Cake },
+  const customerNavItems = [
+    { icon: Home, label: "Home", path: "/" },
+    { icon: Search, label: "Browse", path: "/products" },
     { 
-      path: "/cart", 
-      label: "Cart", 
       icon: ShoppingCart, 
-      badge: cartState.items.length || undefined 
+      label: "Cart", 
+      path: "/cart",
+      badge: cartCount > 0 ? cartCount : undefined
     },
-    { path: "/profile", label: "Profile", icon: User },
+    { icon: Heart, label: "Favorites", path: "/favorites" },
+    { icon: User, label: "Profile", path: "/profile" },
   ];
 
-  const vendorNavItems: NavItem[] = [
-    { path: "/vendor/dashboard", label: "Dashboard", icon: BarChart3 },
-    { path: "/vendor/products", label: "Products", icon: Package },
-    { path: "/vendor/orders", label: "Orders", icon: Receipt },
-    { path: "/vendor/subscriptions", label: "Subscriptions", icon: RotateCcw },
-    { path: "/vendor/settings", label: "Settings", icon: Settings },
+  const vendorNavItems = [
+    { icon: BarChart3, label: "Dashboard", path: "/vendor/dashboard" },
+    { icon: Plus, label: "Add Product", path: "/vendor/products/new" },
+    { icon: Package, label: "Products", path: "/vendor/products" },
+    { icon: ClipboardList, label: "Orders", path: "/vendor/orders" },
+    { icon: RotateCcw, label: "Subscriptions", path: "/vendor/subscriptions" },
+    { icon: Settings, label: "Settings", path: "/vendor/settings" },
   ];
 
   const navItems = user?.role === "vendor" ? vendorNavItems : customerNavItems;
 
-  return (
-    <div className="w-64 h-full bg-gradient-to-b from-sweet-pink via-sweet-purple to-purple-600 dark:from-purple-900 dark:via-purple-800 dark:to-purple-700 shadow-xl">
-      <div className="p-6">
-        {/* Logo */}
-        <div className="flex items-center space-x-2 mb-8">
-          <div className="w-8 h-8 bg-white rounded-full flex items-center justify-center">
-            <Cake className="w-5 h-5 text-sweet-purple" />
-          </div>
-          <span className="text-xl font-bold text-white">SweetSpot</span>
+  const SidebarContent = () => (
+    <div className="flex flex-col h-full">
+      {/* Logo */}
+      <div className="flex items-center space-x-3 p-6 border-b border-border">
+        <div className="w-10 h-10 gradient-sweet rounded-full flex items-center justify-center">
+          <Cookie className="w-6 h-6 text-white" />
         </div>
-
-        {/* Role Badge */}
-        <div className="mb-6">
-          <div className="bg-white/20 backdrop-blur-sm rounded-xl p-3 text-center">
-            <div className="flex items-center justify-center space-x-2">
-              {user?.role === "vendor" ? (
-                <Store className="w-4 h-4 text-white" />
-              ) : (
-                <User className="w-4 h-4 text-white" />
-              )}
-              <span className="text-white font-medium capitalize">
-                {user?.role || "Customer"}
-              </span>
-            </div>
-          </div>
-        </div>
-
-        {/* Navigation */}
-        <nav className="space-y-2">
-          {navItems.map((item) => {
-            const isActive = location === item.path;
-            const IconComponent = item.icon;
-
-            return (
-              <Link key={item.path} href={item.path}>
-                <a
-                  className={cn(
-                    "flex items-center justify-between px-4 py-3 rounded-xl text-white/80 hover:bg-white/20 hover:text-white transition-all duration-200",
-                    isActive && "bg-white/20 text-white shadow-lg"
-                  )}
-                >
-                  <div className="flex items-center space-x-3">
-                    <IconComponent className="w-5 h-5" />
-                    <span className="font-medium">{item.label}</span>
-                  </div>
-                  {item.badge && (
-                    <span className="bg-sweet-yellow text-gray-800 text-xs font-bold px-2 py-1 rounded-full min-w-[20px] h-5 flex items-center justify-center">
-                      {item.badge}
-                    </span>
-                  )}
-                </a>
-              </Link>
-            );
-          })}
-        </nav>
-
-        {/* Role Switcher */}
-        <div className="mt-8 pt-8 border-t border-white/20">
-          <Link href={user?.role === "vendor" ? "/" : "/vendor/dashboard"}>
-            <a className="flex items-center space-x-3 px-4 py-3 rounded-xl text-white/80 hover:bg-white/20 hover:text-white transition-all duration-200">
-              {user?.role === "vendor" ? (
-                <>
-                  <User className="w-5 h-5" />
-                  <span className="font-medium">Switch to Customer</span>
-                </>
-              ) : (
-                <>
-                  <Store className="w-5 h-5" />
-                  <span className="font-medium">Switch to Vendor</span>
-                </>
-              )}
-            </a>
-          </Link>
+        <div>
+          <h1 className="text-xl font-bold text-foreground">SweetSpot</h1>
+          <p className="text-sm text-muted-foreground">
+            {user?.role === "vendor" ? "Vendor Portal" : "Artisan Desserts"}
+          </p>
         </div>
       </div>
+
+      {/* Role Badge */}
+      <div className="px-6 py-3">
+        <div className={`inline-flex px-3 py-1 rounded-full text-xs font-medium ${
+          user?.role === "vendor" 
+            ? "bg-sweet-purple/20 text-sweet-purple" 
+            : "bg-sweet-pink/20 text-sweet-pink"
+        }`}>
+          {user?.role === "vendor" ? "🍰 Vendor" : "🛍️ Customer"}
+        </div>
+      </div>
+
+      {/* Navigation */}
+      <nav className="flex-1 px-6 py-4 space-y-2">
+        {navItems.map((item) => {
+          const Icon = item.icon;
+          const isActive = location === item.path;
+          
+          return (
+            <Button
+              key={item.path}
+              variant={isActive ? "default" : "ghost"}
+              className={`w-full justify-start relative ${
+                isActive 
+                  ? "bg-primary text-primary-foreground shadow-md" 
+                  : "text-muted-foreground hover:text-foreground hover:bg-muted"
+              }`}
+              onClick={() => {
+                setLocation(item.path);
+                onClose();
+              }}
+            >
+              <Icon className="w-5 h-5 mr-3" />
+              {item.label}
+              {item.badge && (
+                <span className="ml-auto bg-destructive text-destructive-foreground rounded-full px-2 py-1 text-xs">
+                  {item.badge}
+                </span>
+              )}
+            </Button>
+          );
+        })}
+      </nav>
+
+      {/* Theme Toggle */}
+      <div className="p-6 border-t border-border">
+        <Button
+          variant="outline"
+          className="w-full justify-start"
+          onClick={toggleTheme}
+        >
+          {theme === "dark" ? (
+            <Sun className="w-5 h-5 mr-3" />
+          ) : (
+            <Moon className="w-5 h-5 mr-3" />
+          )}
+          {theme === "dark" ? "Light Mode" : "Dark Mode"}
+        </Button>
+      </div>
     </div>
+  );
+
+  return (
+    <>
+      {/* Desktop Sidebar */}
+      <div className="hidden lg:fixed lg:inset-y-0 lg:z-50 lg:flex lg:w-64 lg:flex-col">
+        <div className="flex grow flex-col gap-y-5 overflow-y-auto glass-effect border-r border-border">
+          <SidebarContent />
+        </div>
+      </div>
+
+      {/* Mobile Sidebar */}
+      <Sheet open={isOpen} onOpenChange={onClose}>
+        <SheetContent side="left" className="w-64 p-0">
+          <div className="h-full overflow-y-auto">
+            <SidebarContent />
+          </div>
+        </SheetContent>
+      </Sheet>
+    </>
   );
 }

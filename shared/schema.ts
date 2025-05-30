@@ -6,17 +6,16 @@ import {
   jsonb,
   index,
   serial,
-  decimal,
   integer,
+  decimal,
   boolean,
   uuid,
 } from "drizzle-orm/pg-core";
-import { relations } from "drizzle-orm";
 import { createInsertSchema } from "drizzle-zod";
 import { z } from "zod";
+import { relations } from "drizzle-orm";
 
-// Session storage table.
-// (IMPORTANT) This table is mandatory for Replit Auth, don't drop it.
+// Session storage table for auth
 export const sessions = pgTable(
   "sessions",
   {
@@ -27,120 +26,146 @@ export const sessions = pgTable(
   (table) => [index("IDX_session_expire").on(table.expire)],
 );
 
-// User storage table.
-// (IMPORTANT) This table is mandatory for Replit Auth, don't drop it.
+// Users table
 export const users = pgTable("users", {
   id: varchar("id").primaryKey().notNull(),
   email: varchar("email").unique(),
   firstName: varchar("first_name"),
   lastName: varchar("last_name"),
   profileImageUrl: varchar("profile_image_url"),
-  role: varchar("role", { enum: ["customer", "vendor"] }).notNull().default("customer"),
+  role: varchar("role").notNull().default("customer"), // customer or vendor
   createdAt: timestamp("created_at").defaultNow(),
   updatedAt: timestamp("updated_at").defaultNow(),
 });
 
+// Product categories
+export const categories = pgTable("categories", {
+  id: serial("id").primaryKey(),
+  name: varchar("name", { length: 100 }).notNull().unique(),
+  description: text("description"),
+  createdAt: timestamp("created_at").defaultNow(),
+});
+
+// Products table
 export const products = pgTable("products", {
-  id: uuid("id").defaultRandom().primaryKey(),
-  vendorId: varchar("vendor_id").notNull().references(() => users.id),
-  name: varchar("name", { length: 255 }).notNull(),
+  id: serial("id").primaryKey(),
+  vendorId: varchar("vendor_id").notNull(),
+  name: varchar("name", { length: 200 }).notNull(),
   description: text("description"),
   price: decimal("price", { precision: 10, scale: 2 }).notNull(),
-  category: varchar("category", { length: 100 }).notNull(),
+  categoryId: integer("category_id"),
   imageUrl: varchar("image_url"),
-  stock: integer("stock").notNull().default(0),
-  isActive: boolean("is_active").notNull().default(true),
-  tags: jsonb("tags").$type<string[]>().default([]),
-  prepTime: integer("prep_time").notNull().default(30), // in minutes
-  rating: decimal("rating", { precision: 3, scale: 2 }).default("0"),
-  reviewCount: integer("review_count").default(0),
+  stock: integer("stock").default(0),
+  isActive: boolean("is_active").default(true),
+  tags: text("tags").array(),
+  prepTimeMinutes: integer("prep_time_minutes"),
+  dietary: text("dietary").array(), // vegan, gluten-free, etc.
   createdAt: timestamp("created_at").defaultNow(),
   updatedAt: timestamp("updated_at").defaultNow(),
 });
 
+// Orders table
 export const orders = pgTable("orders", {
-  id: uuid("id").defaultRandom().primaryKey(),
-  customerId: varchar("customer_id").notNull().references(() => users.id),
-  vendorId: varchar("vendor_id").notNull().references(() => users.id),
-  status: varchar("status", { enum: ["pending", "confirmed", "preparing", "ready", "delivered", "cancelled"] }).notNull().default("pending"),
-  totalAmount: decimal("total_amount", { precision: 10, scale: 2 }).notNull(),
-  deliveryAddress: jsonb("delivery_address").$type<{
-    street: string;
-    city: string;
-    state: string;
-    zipCode: string;
-    country: string;
-  }>().notNull(),
-  notes: text("notes"),
-  estimatedDelivery: timestamp("estimated_delivery"),
+  id: serial("id").primaryKey(),
+  customerId: varchar("customer_id").notNull(),
+  vendorId: varchar("vendor_id").notNull(),
+  status: varchar("status").notNull().default("pending"), // pending, confirmed, preparing, ready, delivered, cancelled
+  subtotal: decimal("subtotal", { precision: 10, scale: 2 }).notNull(),
+  tax: decimal("tax", { precision: 10, scale: 2 }).notNull(),
+  deliveryFee: decimal("delivery_fee", { precision: 10, scale: 2 }).notNull(),
+  total: decimal("total", { precision: 10, scale: 2 }).notNull(),
+  deliveryAddress: jsonb("delivery_address"),
+  specialInstructions: text("special_instructions"),
+  estimatedDeliveryTime: timestamp("estimated_delivery_time"),
   createdAt: timestamp("created_at").defaultNow(),
   updatedAt: timestamp("updated_at").defaultNow(),
 });
 
+// Order items table
 export const orderItems = pgTable("order_items", {
-  id: uuid("id").defaultRandom().primaryKey(),
-  orderId: uuid("order_id").notNull().references(() => orders.id, { onDelete: "cascade" }),
-  productId: uuid("product_id").notNull().references(() => products.id),
+  id: serial("id").primaryKey(),
+  orderId: integer("order_id").notNull(),
+  productId: integer("product_id").notNull(),
   quantity: integer("quantity").notNull(),
   unitPrice: decimal("unit_price", { precision: 10, scale: 2 }).notNull(),
-  notes: text("notes"),
+  totalPrice: decimal("total_price", { precision: 10, scale: 2 }).notNull(),
+  specialRequests: text("special_requests"),
 });
 
+// Shopping cart table
 export const cartItems = pgTable("cart_items", {
-  id: uuid("id").defaultRandom().primaryKey(),
-  customerId: varchar("customer_id").notNull().references(() => users.id),
-  productId: uuid("product_id").notNull().references(() => products.id),
-  quantity: integer("quantity").notNull().default(1),
-  notes: text("notes"),
+  id: serial("id").primaryKey(),
+  customerId: varchar("customer_id").notNull(),
+  productId: integer("product_id").notNull(),
+  quantity: integer("quantity").notNull(),
+  specialRequests: text("special_requests"),
   createdAt: timestamp("created_at").defaultNow(),
 });
 
+// Favorites table
+export const favorites = pgTable("favorites", {
+  id: serial("id").primaryKey(),
+  customerId: varchar("customer_id").notNull(),
+  productId: integer("product_id").notNull(),
+  createdAt: timestamp("created_at").defaultNow(),
+});
+
+// Subscriptions table
 export const subscriptions = pgTable("subscriptions", {
-  id: uuid("id").defaultRandom().primaryKey(),
-  customerId: varchar("customer_id").notNull().references(() => users.id),
-  vendorId: varchar("vendor_id").notNull().references(() => users.id),
-  plan: varchar("plan", { enum: ["weekly", "biweekly", "monthly"] }).notNull(),
-  status: varchar("status", { enum: ["active", "paused", "cancelled"] }).notNull().default("active"),
-  preferences: jsonb("preferences").$type<{
-    categories: string[];
-    allergies: string[];
-    specialRequests: string;
-  }>(),
-  nextDelivery: timestamp("next_delivery"),
-  price: decimal("price", { precision: 10, scale: 2 }).notNull(),
+  id: serial("id").primaryKey(),
+  customerId: varchar("customer_id").notNull(),
+  vendorId: varchar("vendor_id").notNull(),
+  planType: varchar("plan_type").notNull(), // monthly, weekly
+  preferences: jsonb("preferences"), // dietary restrictions, favorite categories
+  isActive: boolean("is_active").default(true),
+  nextDeliveryDate: timestamp("next_delivery_date"),
   createdAt: timestamp("created_at").defaultNow(),
   updatedAt: timestamp("updated_at").defaultNow(),
 });
 
-export const favorites = pgTable("favorites", {
-  id: uuid("id").defaultRandom().primaryKey(),
-  customerId: varchar("customer_id").notNull().references(() => users.id),
-  productId: uuid("product_id").notNull().references(() => products.id),
+// Subscription deliveries
+export const subscriptionDeliveries = pgTable("subscription_deliveries", {
+  id: serial("id").primaryKey(),
+  subscriptionId: integer("subscription_id").notNull(),
+  orderId: integer("order_id").notNull(),
+  deliveryDate: timestamp("delivery_date").notNull(),
+  status: varchar("status").notNull().default("scheduled"), // scheduled, delivered, skipped
   createdAt: timestamp("created_at").defaultNow(),
 });
 
+// Product reviews
 export const reviews = pgTable("reviews", {
-  id: uuid("id").defaultRandom().primaryKey(),
-  customerId: varchar("customer_id").notNull().references(() => users.id),
-  productId: uuid("product_id").notNull().references(() => products.id),
-  orderId: uuid("order_id").references(() => orders.id),
-  rating: integer("rating").notNull(),
+  id: serial("id").primaryKey(),
+  productId: integer("product_id").notNull(),
+  customerId: varchar("customer_id").notNull(),
+  rating: integer("rating").notNull(), // 1-5
   comment: text("comment"),
   createdAt: timestamp("created_at").defaultNow(),
 });
 
-// Relations
+// Define relations
 export const usersRelations = relations(users, ({ many }) => ({
   products: many(products),
   orders: many(orders),
   cartItems: many(cartItems),
-  subscriptions: many(subscriptions),
   favorites: many(favorites),
+  subscriptions: many(subscriptions),
   reviews: many(reviews),
 }));
 
+export const categoriesRelations = relations(categories, ({ many }) => ({
+  products: many(products),
+}));
+
 export const productsRelations = relations(products, ({ one, many }) => ({
-  vendor: one(users, { fields: [products.vendorId], references: [users.id] }),
+  vendor: one(users, {
+    fields: [products.vendorId],
+    references: [users.id],
+  }),
+  category: one(categories, {
+    fields: [products.categoryId],
+    references: [categories.id],
+  }),
   orderItems: many(orderItems),
   cartItems: many(cartItems),
   favorites: many(favorites),
@@ -148,45 +173,100 @@ export const productsRelations = relations(products, ({ one, many }) => ({
 }));
 
 export const ordersRelations = relations(orders, ({ one, many }) => ({
-  customer: one(users, { fields: [orders.customerId], references: [users.id] }),
-  vendor: one(users, { fields: [orders.vendorId], references: [users.id] }),
-  items: many(orderItems),
-  reviews: many(reviews),
+  customer: one(users, {
+    fields: [orders.customerId],
+    references: [users.id],
+  }),
+  vendor: one(users, {
+    fields: [orders.vendorId],
+    references: [users.id],
+  }),
+  orderItems: many(orderItems),
+  subscriptionDeliveries: many(subscriptionDeliveries),
 }));
 
 export const orderItemsRelations = relations(orderItems, ({ one }) => ({
-  order: one(orders, { fields: [orderItems.orderId], references: [orders.id] }),
-  product: one(products, { fields: [orderItems.productId], references: [products.id] }),
+  order: one(orders, {
+    fields: [orderItems.orderId],
+    references: [orders.id],
+  }),
+  product: one(products, {
+    fields: [orderItems.productId],
+    references: [products.id],
+  }),
 }));
 
 export const cartItemsRelations = relations(cartItems, ({ one }) => ({
-  customer: one(users, { fields: [cartItems.customerId], references: [users.id] }),
-  product: one(products, { fields: [cartItems.productId], references: [products.id] }),
-}));
-
-export const subscriptionsRelations = relations(subscriptions, ({ one }) => ({
-  customer: one(users, { fields: [subscriptions.customerId], references: [users.id] }),
-  vendor: one(users, { fields: [subscriptions.vendorId], references: [users.id] }),
+  customer: one(users, {
+    fields: [cartItems.customerId],
+    references: [users.id],
+  }),
+  product: one(products, {
+    fields: [cartItems.productId],
+    references: [products.id],
+  }),
 }));
 
 export const favoritesRelations = relations(favorites, ({ one }) => ({
-  customer: one(users, { fields: [favorites.customerId], references: [users.id] }),
-  product: one(products, { fields: [favorites.productId], references: [products.id] }),
+  customer: one(users, {
+    fields: [favorites.customerId],
+    references: [users.id],
+  }),
+  product: one(products, {
+    fields: [favorites.productId],
+    references: [products.id],
+  }),
+}));
+
+export const subscriptionsRelations = relations(subscriptions, ({ one, many }) => ({
+  customer: one(users, {
+    fields: [subscriptions.customerId],
+    references: [users.id],
+  }),
+  vendor: one(users, {
+    fields: [subscriptions.vendorId],
+    references: [users.id],
+  }),
+  deliveries: many(subscriptionDeliveries),
+}));
+
+export const subscriptionDeliveriesRelations = relations(subscriptionDeliveries, ({ one }) => ({
+  subscription: one(subscriptions, {
+    fields: [subscriptionDeliveries.subscriptionId],
+    references: [subscriptions.id],
+  }),
+  order: one(orders, {
+    fields: [subscriptionDeliveries.orderId],
+    references: [orders.id],
+  }),
 }));
 
 export const reviewsRelations = relations(reviews, ({ one }) => ({
-  customer: one(users, { fields: [reviews.customerId], references: [users.id] }),
-  product: one(products, { fields: [reviews.productId], references: [products.id] }),
-  order: one(orders, { fields: [reviews.orderId], references: [orders.id] }),
+  product: one(products, {
+    fields: [reviews.productId],
+    references: [products.id],
+  }),
+  customer: one(users, {
+    fields: [reviews.customerId],
+    references: [users.id],
+  }),
 }));
 
 // Insert schemas
+export const insertUserSchema = createInsertSchema(users).omit({
+  createdAt: true,
+  updatedAt: true,
+});
+
+export const insertCategorySchema = createInsertSchema(categories).omit({
+  id: true,
+  createdAt: true,
+});
+
 export const insertProductSchema = createInsertSchema(products).omit({
   id: true,
   createdAt: true,
   updatedAt: true,
-  rating: true,
-  reviewCount: true,
 });
 
 export const insertOrderSchema = createInsertSchema(orders).omit({
@@ -195,7 +275,16 @@ export const insertOrderSchema = createInsertSchema(orders).omit({
   updatedAt: true,
 });
 
+export const insertOrderItemSchema = createInsertSchema(orderItems).omit({
+  id: true,
+});
+
 export const insertCartItemSchema = createInsertSchema(cartItems).omit({
+  id: true,
+  createdAt: true,
+});
+
+export const insertFavoriteSchema = createInsertSchema(favorites).omit({
   id: true,
   createdAt: true,
 });
@@ -206,11 +295,6 @@ export const insertSubscriptionSchema = createInsertSchema(subscriptions).omit({
   updatedAt: true,
 });
 
-export const insertFavoriteSchema = createInsertSchema(favorites).omit({
-  id: true,
-  createdAt: true,
-});
-
 export const insertReviewSchema = createInsertSchema(reviews).omit({
   id: true,
   createdAt: true,
@@ -219,16 +303,19 @@ export const insertReviewSchema = createInsertSchema(reviews).omit({
 // Types
 export type UpsertUser = typeof users.$inferInsert;
 export type User = typeof users.$inferSelect;
+export type Category = typeof categories.$inferSelect;
+export type InsertCategory = z.infer<typeof insertCategorySchema>;
 export type Product = typeof products.$inferSelect;
 export type InsertProduct = z.infer<typeof insertProductSchema>;
 export type Order = typeof orders.$inferSelect;
 export type InsertOrder = z.infer<typeof insertOrderSchema>;
 export type OrderItem = typeof orderItems.$inferSelect;
+export type InsertOrderItem = z.infer<typeof insertOrderItemSchema>;
 export type CartItem = typeof cartItems.$inferSelect;
 export type InsertCartItem = z.infer<typeof insertCartItemSchema>;
-export type Subscription = typeof subscriptions.$inferSelect;
-export type InsertSubscription = z.infer<typeof insertSubscriptionSchema>;
 export type Favorite = typeof favorites.$inferSelect;
 export type InsertFavorite = z.infer<typeof insertFavoriteSchema>;
+export type Subscription = typeof subscriptions.$inferSelect;
+export type InsertSubscription = z.infer<typeof insertSubscriptionSchema>;
 export type Review = typeof reviews.$inferSelect;
 export type InsertReview = z.infer<typeof insertReviewSchema>;
