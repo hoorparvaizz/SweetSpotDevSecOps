@@ -6,6 +6,9 @@
 
 A full-stack MERN application connecting artisan dessert vendors with customers, featuring real-time inventory management, order processing, and seamless user experiences.
 
+**🔐 Doppler Integration Status**: ✅ Active (Centralized Secret Management)  
+**🔄 Last CI/CD Test**: January 2025 - Testing Doppler token integration
+
 ## 🌟 Features
 
 ### For Customers
