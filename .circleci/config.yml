@@ -9,22 +9,23 @@ workflows:
       - integration-tests
       - performance-tests
       - security-scan
-      # Disable deployment jobs for now - they're just for testing CI/CD setup
-      # - deploy-staging:
-      #     requires:
-      #       - integration-tests
-      #       - security-scan
-      #     filters:
-      #       branches:
-      #         only: develop
-      # - deploy-production:
-      #     requires:
-      #       - integration-tests
-      #       - performance-tests
-      #       - security-scan
-      #     filters:
-      #       branches:
-      #         only: main
+      # Enable deployment jobs to match GitHub Actions deployment capability
+      - deploy-staging:
+          requires:
+            - integration-tests
+            - security-scan
+          filters:
+            branches:
+              only: main  # Deploy from main branch for demo
+      - deploy-production:
+          requires:
+            - integration-tests
+            - performance-tests
+            - security-scan
+            - deploy-staging  # Require staging to pass first
+          filters:
+            branches:
+              only: main  # Deploy from main branch for demo
 
 jobs:
   integration-tests:
