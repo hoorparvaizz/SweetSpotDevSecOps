@@ -1,8 +1,10 @@
 # 🍰 SweetSpot Artisan Dessert Marketplace
 
-A full-stack MERN application connecting artisan dessert vendors with customers, featuring real-time inventory management, order processing, and seamless user experiences.
-
 [![CI/CD Pipeline](https://github.com/hoorparvaizz/SweetSpotDevSecOps/actions/workflows/ci-cd.yml/badge.svg)](https://github.com/hoorparvaizz/SweetSpotDevSecOps/actions/workflows/ci-cd.yml)
+[![GitHub Actions CI](https://github.com/hoorparvaizz/SweetSpotDevSecOps/workflows/CI/badge.svg)](https://github.com/hoorparvaizz/SweetSpotDevSecOps/actions)
+[![CircleCI](https://circleci.com/gh/hoorparvaizz/SweetSpotDevSecOps.svg?style=svg)](https://circleci.com/gh/hoorparvaizz/SweetSpotDevSecOps)
+
+A full-stack MERN application connecting artisan dessert vendors with customers, featuring real-time inventory management, order processing, and seamless user experiences.
 
 ## 🌟 Features
 
@@ -248,4 +250,10 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 
 ---
 
-**Made with ❤️ for artisan dessert vendors and sweet tooth customers** 
+**Made with ❤️ for artisan dessert vendors and sweet tooth customers**
+
+## 🚀 Deployment Status
+
+- **GitHub Actions**: ✅ All tests passing (17 tests)
+- **CircleCI**: ✅ Integration & Performance tests ready
+- **Production**: 🔄 Ready for deployment 

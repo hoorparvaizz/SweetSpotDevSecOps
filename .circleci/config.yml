@@ -1,0 +1,137 @@
+version: 2.1
+
+orbs:
+  node: circleci/node@5.1.0
+
+workflows:
+  deployment-pipeline:
+    jobs:
+      - integration-tests
+      - performance-tests
+      - security-scan
+      - deploy-staging:
+          requires:
+            - integration-tests
+            - security-scan
+          filters:
+            branches:
+              only: develop
+      - deploy-production:
+          requires:
+            - integration-tests
+            - performance-tests
+            - security-scan
+          filters:
+            branches:
+              only: main
+
+jobs:
+  integration-tests:
+    docker:
+      - image: cimg/node:18.17
+      - image: cimg/mongo:4.4
+        environment:
+          MONGO_INITDB_DATABASE: sweetspot_test
+    resource_class: medium
+    steps:
+      - checkout
+      - node/install-packages
+      - run:
+          name: Wait for MongoDB
+          command: |
+            for i in {1..30}; do
+              if mongo --eval "db.runCommand({ping: 1})" > /dev/null 2>&1; then
+                echo "MongoDB is ready"
+                break
+              fi
+              echo "Waiting for MongoDB... ($i/30)"
+              sleep 2
+            done
+      - run:
+          name: Create Test Database
+          command: |
+            mongo sweetspot_test --eval "db.createCollection('test')"
+      - run:
+          name: Run Integration Tests
+          command: |
+            npm run test:integration
+          environment:
+            MONGODB_URI: mongodb://localhost:27017/sweetspot_test
+            JWT_SECRET: test-secret-for-circleci-integration
+            NODE_ENV: test
+            PORT: 3001
+      - store_test_results:
+          path: ./test-results
+      - store_artifacts:
+          path: ./test-results
+          destination: integration-test-results
+
+  performance-tests:
+    docker:
+      - image: cimg/node:18.17
+    resource_class: medium
+    steps:
+      - checkout
+      - node/install-packages
+      - run:
+          name: Run Performance Tests
+          command: |
+            npm run test:performance
+      - store_artifacts:
+          path: ./performance-results
+          destination: performance-reports
+
+  security-scan:
+    docker:
+      - image: cimg/node:18.17
+    steps:
+      - checkout
+      - node/install-packages
+      - run:
+          name: Run Security Audit
+          command: |
+            npm run security:scan
+
+  deploy-staging:
+    docker:
+      - image: cimg/node:18.17
+    steps:
+      - checkout
+      - node/install-packages
+      - run:
+          name: Build Application
+          command: |
+            npm run build
+      - run:
+          name: Deploy to Staging
+          command: |
+            npm run deploy:staging
+      - run:
+          name: Run Smoke Tests
+          command: |
+            npm run test:smoke -- --env=staging
+      - store_artifacts:
+          path: ./dist
+          destination: staging-build
+
+  deploy-production:
+    docker:
+      - image: cimg/node:18.17
+    steps:
+      - checkout
+      - node/install-packages
+      - run:
+          name: Build Application
+          command: |
+            npm run build
+      - run:
+          name: Deploy to Production
+          command: |
+            npm run deploy:production
+      - run:
+          name: Run Health Check
+          command: |
+            npm run test:health -- --env=production
+      - store_artifacts:
+          path: ./dist
+          destination: production-build

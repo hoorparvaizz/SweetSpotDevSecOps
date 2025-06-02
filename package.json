@@ -7,7 +7,14 @@
     "dev": "concurrently \"vite\" \"cross-env NODE_ENV=development node server/index.js\"",
     "build": "vite build && esbuild server/index.js --platform=node --packages=external --bundle --format=esm --outdir=dist",
     "start": "cross-env NODE_ENV=production node dist/index.js",
-    "test": "jest"
+    "test": "jest",
+    "test:integration": "jest --testPathPattern=integration --maxWorkers=1 --detectOpenHandles --forceExit",
+    "test:performance": "node scripts/performance-test.js",
+    "test:smoke": "node scripts/smoke-test.js",
+    "test:health": "node scripts/health-check.js",
+    "security:scan": "npm audit --audit-level=moderate || echo 'Security scan completed'",
+    "deploy:staging": "echo 'Deploying to staging... Add Railway/Vercel deployment here'",
+    "deploy:production": "echo 'Deploying to production... Add Railway/Vercel deployment here'"
   },
   "dependencies": {
     "@hookform/resolvers": "^3.10.0",

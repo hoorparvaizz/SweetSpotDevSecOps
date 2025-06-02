@@ -3,6 +3,12 @@
 // Set test timeout for slower CI environments
 jest.setTimeout(30000);
 
+// Set up environment variables for tests (local development)
+process.env.NODE_ENV = process.env.NODE_ENV || 'test';
+process.env.MONGODB_URI = process.env.MONGODB_URI || 'mongodb://localhost:27017/sweetspot_test';
+process.env.JWT_SECRET = process.env.JWT_SECRET || 'test-secret-key-for-local-development';
+process.env.PORT = process.env.PORT || '3001';
+
 // Prevent unhandled promise rejections from failing tests
 process.on('unhandledRejection', (reason, promise) => {
   console.warn('Unhandled Rejection at:', promise, 'reason:', reason);
@@ -24,4 +30,4 @@ beforeAll(() => {
 afterAll(() => {
   // Restore console.warn
   console.warn.mockRestore?.();
-}); 
+});
