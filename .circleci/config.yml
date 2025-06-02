@@ -37,6 +37,11 @@ jobs:
       - checkout
       - node/install-packages
       - run:
+          name: Install Doppler CLI
+          command: |
+            curl -Ls https://cli.doppler.com/install.sh | sh
+            sudo mv doppler /usr/local/bin
+      - run:
           name: Wait for MongoDB
           command: |
             for i in {1..30}; do
@@ -51,14 +56,11 @@ jobs:
               sleep 2
             done
       - run:
-          name: Run Integration Tests
+          name: Run Integration Tests with Doppler
           command: |
-            npm run test:integration
+            doppler run -- npm run test:integration
           environment:
-            MONGODB_URI: mongodb://127.0.0.1:27017/sweetspot_test
-            JWT_SECRET: test-secret-for-circleci-integration
-            NODE_ENV: test
-            PORT: 3001
+            DOPPLER_TOKEN: ${DOPPLER_TOKEN}
       - store_test_results:
           path: ./test-results
       - store_artifacts:
@@ -73,9 +75,16 @@ jobs:
       - checkout
       - node/install-packages
       - run:
-          name: Run Performance Tests
+          name: Install Doppler CLI
           command: |
-            npm run test:performance
+            curl -Ls https://cli.doppler.com/install.sh | sh
+            sudo mv doppler /usr/local/bin
+      - run:
+          name: Run Performance Tests with Doppler
+          command: |
+            doppler run -- npm run test:performance
+          environment:
+            DOPPLER_TOKEN: ${DOPPLER_TOKEN}
       - store_artifacts:
           path: ./performance-results
           destination: performance-reports
@@ -98,17 +107,26 @@ jobs:
       - checkout
       - node/install-packages
       - run:
-          name: Build Application
+          name: Install Doppler CLI
           command: |
-            npm run build
+            curl -Ls https://cli.doppler.com/install.sh | sh
+            sudo mv doppler /usr/local/bin
+      - run:
+          name: Build Application with Doppler
+          command: |
+            doppler run -- npm run build
+          environment:
+            DOPPLER_TOKEN: ${DOPPLER_TOKEN}
       - run:
           name: Deploy to Staging
           command: |
             npm run deploy:staging
       - run:
-          name: Run Smoke Tests
+          name: Run Smoke Tests with Doppler
           command: |
-            npm run test:smoke
+            doppler run -- npm run test:smoke
+          environment:
+            DOPPLER_TOKEN: ${DOPPLER_TOKEN}
       - store_artifacts:
           path: ./dist
           destination: staging-build
@@ -120,17 +138,26 @@ jobs:
       - checkout
       - node/install-packages
       - run:
-          name: Build Application
+          name: Install Doppler CLI
           command: |
-            npm run build
+            curl -Ls https://cli.doppler.com/install.sh | sh
+            sudo mv doppler /usr/local/bin
+      - run:
+          name: Build Application with Doppler
+          command: |
+            doppler run -- npm run build
+          environment:
+            DOPPLER_TOKEN: ${DOPPLER_TOKEN}
       - run:
           name: Deploy to Production
           command: |
             npm run deploy:production
       - run:
-          name: Run Health Check
+          name: Run Health Check with Doppler
           command: |
-            npm run test:health
+            doppler run -- npm run test:health
+          environment:
+            DOPPLER_TOKEN: ${DOPPLER_TOKEN}
       - store_artifacts:
           path: ./dist
           destination: production-build

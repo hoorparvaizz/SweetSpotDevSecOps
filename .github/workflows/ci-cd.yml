@@ -35,6 +35,9 @@ jobs:
         node-version: ${{ matrix.node-version }}
         cache: 'npm'
 
+    - name: Install Doppler CLI
+      uses: dopplerhq/cli-action@v3
+
     - name: Install dependencies
       run: npm ci
 
@@ -44,13 +47,6 @@ jobs:
         mkdir -p server/uploads
         mkdir -p client/src/components/__tests__
         mkdir -p server/__tests__
-
-    - name: Set up environment variables
-      run: |
-        echo "MONGODB_URI=mongodb://127.0.0.1:27017/sweetspot_test" >> $GITHUB_ENV
-        echo "JWT_SECRET=test-secret-key-for-github-actions" >> $GITHUB_ENV
-        echo "NODE_ENV=test" >> $GITHUB_ENV
-        echo "PORT=3001" >> $GITHUB_ENV
 
     - name: Wait for MongoDB to be ready
       run: |
@@ -63,12 +59,10 @@ jobs:
           sleep 2
         done
 
-    - name: Run tests
-      run: npm test -- --passWithNoTests --detectOpenHandles --forceExit --maxWorkers=1
+    - name: Run tests with Doppler
+      run: doppler run -- npm test -- --passWithNoTests --detectOpenHandles --forceExit --maxWorkers=1
       env:
-        MONGODB_URI: mongodb://127.0.0.1:27017/sweetspot_test
-        JWT_SECRET: test-secret-key-for-github-actions
-        NODE_ENV: test
+        DOPPLER_TOKEN: ${{ secrets.DOPPLER_TOKEN }}
         CI: true
 
   build:
@@ -85,14 +79,19 @@ jobs:
         node-version: 20.x
         cache: 'npm'
 
+    - name: Install Doppler CLI
+      uses: dopplerhq/cli-action@v3
+
     - name: Install dependencies
       run: npm ci
 
     - name: Create required directories
       run: mkdir -p uploads
 
-    - name: Build application
-      run: npm run build
+    - name: Build application with Doppler
+      run: doppler run -- npm run build
+      env:
+        DOPPLER_TOKEN: ${{ secrets.DOPPLER_TOKEN }}
 
     - name: Archive production artifacts
       uses: actions/upload-artifact@v4
