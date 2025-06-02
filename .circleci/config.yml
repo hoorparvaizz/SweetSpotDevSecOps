@@ -56,11 +56,23 @@ jobs:
               sleep 2
             done
       - run:
-          name: Run Integration Tests with Doppler
+          name: Run Integration Tests with Doppler (if token exists) or fallback
           command: |
-            doppler run -- npm run test:integration
+            if [ -n "${DOPPLER_TOKEN}" ]; then
+              echo "Using Doppler for environment variables"
+              doppler secrets download --no-file --format=env-no-quotes > .env.ci
+              set -a && source .env.ci && set +a
+            else
+              echo "Using fallback environment variables"
+              export MONGODB_URI="mongodb://127.0.0.1:27017/sweetspot_test"
+              export JWT_SECRET="test-secret-for-circleci-integration"
+              export NODE_ENV="test"
+              export PORT="3001"
+            fi
+            npm run test:integration
           environment:
-            DOPPLER_TOKEN: ${DOPPLER_TOKEN}
+            DOPPLER_PROJECT: sweetspotmarketplace
+            DOPPLER_CONFIG: dev
       - store_test_results:
           path: ./test-results
       - store_artifacts:
@@ -80,11 +92,20 @@ jobs:
             curl -Ls https://cli.doppler.com/install.sh | sh
             sudo mv doppler /usr/local/bin
       - run:
-          name: Run Performance Tests with Doppler
+          name: Run Performance Tests with Doppler (if token exists) or fallback
           command: |
-            doppler run -- npm run test:performance
+            if [ -n "${DOPPLER_TOKEN}" ]; then
+              echo "Using Doppler for environment variables"
+              doppler secrets download --no-file --format=env-no-quotes > .env.ci
+              set -a && source .env.ci && set +a
+            else
+              echo "Using fallback environment variables for performance tests"
+              export NODE_ENV="test"
+            fi
+            npm run test:performance
           environment:
-            DOPPLER_TOKEN: ${DOPPLER_TOKEN}
+            DOPPLER_PROJECT: sweetspotmarketplace
+            DOPPLER_CONFIG: dev
       - store_artifacts:
           path: ./performance-results
           destination: performance-reports
@@ -112,21 +133,39 @@ jobs:
             curl -Ls https://cli.doppler.com/install.sh | sh
             sudo mv doppler /usr/local/bin
       - run:
-          name: Build Application with Doppler
+          name: Build Application with Doppler (if token exists) or fallback
           command: |
-            doppler run -- npm run build
+            if [ -n "${DOPPLER_TOKEN}" ]; then
+              echo "Building with Doppler environment variables"
+              doppler secrets download --no-file --format=env-no-quotes > .env.ci
+              set -a && source .env.ci && set +a
+            else
+              echo "Building with fallback environment variables"
+              export NODE_ENV="staging"
+            fi
+            npm run build
           environment:
-            DOPPLER_TOKEN: ${DOPPLER_TOKEN}
+            DOPPLER_PROJECT: sweetspotmarketplace
+            DOPPLER_CONFIG: stg
       - run:
           name: Deploy to Staging
           command: |
             npm run deploy:staging
       - run:
-          name: Run Smoke Tests with Doppler
+          name: Run Smoke Tests with Doppler (if token exists) or fallback
           command: |
-            doppler run -- npm run test:smoke
+            if [ -n "${DOPPLER_TOKEN}" ]; then
+              echo "Running smoke tests with Doppler environment variables"
+              doppler secrets download --no-file --format=env-no-quotes > .env.ci
+              set -a && source .env.ci && set +a
+            else
+              echo "Running smoke tests with fallback environment variables"
+              export NODE_ENV="staging"
+            fi
+            npm run test:smoke
           environment:
-            DOPPLER_TOKEN: ${DOPPLER_TOKEN}
+            DOPPLER_PROJECT: sweetspotmarketplace
+            DOPPLER_CONFIG: stg
       - store_artifacts:
           path: ./dist
           destination: staging-build
@@ -143,21 +182,39 @@ jobs:
             curl -Ls https://cli.doppler.com/install.sh | sh
             sudo mv doppler /usr/local/bin
       - run:
-          name: Build Application with Doppler
+          name: Build Application with Doppler (if token exists) or fallback
           command: |
-            doppler run -- npm run build
+            if [ -n "${DOPPLER_TOKEN}" ]; then
+              echo "Building with Doppler environment variables"
+              doppler secrets download --no-file --format=env-no-quotes > .env.ci
+              set -a && source .env.ci && set +a
+            else
+              echo "Building with fallback environment variables"
+              export NODE_ENV="production"
+            fi
+            npm run build
           environment:
-            DOPPLER_TOKEN: ${DOPPLER_TOKEN}
+            DOPPLER_PROJECT: sweetspotmarketplace
+            DOPPLER_CONFIG: prd
       - run:
           name: Deploy to Production
           command: |
             npm run deploy:production
       - run:
-          name: Run Health Check with Doppler
+          name: Run Health Check with Doppler (if token exists) or fallback
           command: |
-            doppler run -- npm run test:health
+            if [ -n "${DOPPLER_TOKEN}" ]; then
+              echo "Running health check with Doppler environment variables"
+              doppler secrets download --no-file --format=env-no-quotes > .env.ci
+              set -a && source .env.ci && set +a
+            else
+              echo "Running health check with fallback environment variables"
+              export NODE_ENV="production"
+            fi
+            npm run test:health
           environment:
-            DOPPLER_TOKEN: ${DOPPLER_TOKEN}
+            DOPPLER_PROJECT: sweetspotmarketplace
+            DOPPLER_CONFIG: prd
       - store_artifacts:
           path: ./dist
           destination: production-build
