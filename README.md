@@ -3,7 +3,6 @@
 A full-stack MERN application connecting artisan dessert vendors with customers, featuring real-time inventory management, order processing, and seamless user experiences.
 
 [![CI/CD Pipeline](https://github.com/hoorparvaizz/SweetSpotDevSecOps/actions/workflows/ci-cd.yml/badge.svg)](https://github.com/hoorparvaizz/SweetSpotDevSecOps/actions/workflows/ci-cd.yml)
-[![Deploy to Heroku](https://github.com/hoorparvaizz/SweetSpotDevSecOps/actions/workflows/deploy-heroku.yml/badge.svg)](https://github.com/hoorparvaizz/SweetSpotDevSecOps/actions/workflows/deploy-heroku.yml)
 
 ## 🌟 Features
 
@@ -49,7 +48,7 @@ A full-stack MERN application connecting artisan dessert vendors with customers,
 - **bcryptjs** - Password hashing
 
 ### DevOps & CI/CD
-- **GitHub Actions** - Automated testing and deployment
+- **GitHub Actions** - Automated testing and code quality checks
 - **Jest** - JavaScript testing framework
 - **ESLint** - Code linting and formatting
 - **Docker** - Containerization (optional)
@@ -86,9 +85,6 @@ JWT_SECRET=your-super-secret-jwt-key
 # Server
 PORT=3001
 NODE_ENV=development
-
-# Frontend (for production builds)
-VITE_API_URL=http://localhost:3001
 ```
 
 4. **Start MongoDB**
@@ -172,39 +168,24 @@ npm run test:coverage
 npm run test:watch
 ```
 
-## 🚀 Deployment
+## 🚀 CI/CD Pipeline
 
-### GitHub Actions Workflows
+### GitHub Actions Workflow
 
-1. **CI/CD Pipeline** (`.github/workflows/ci-cd.yml`)
-   - Runs tests on Node.js 18.x and 20.x
-   - Builds application
-   - Security scanning
-   - Code quality checks
-   - Automated deployment
+The CI/CD pipeline (`.github/workflows/ci-cd.yml`) automatically:
+- **Tests** - Runs on Node.js 18.x and 20.x with MongoDB
+- **Builds** - Creates production build and archives artifacts
+- **Security Scanning** - Runs npm audit and dependency checks
+- **Code Quality** - Checks formatting and linting (if configured)
 
-2. **Heroku Deployment** (`.github/workflows/deploy-heroku.yml`)
-   - Deploys to Heroku on main branch pushes
-   - Includes health check validation
+### Triggers
+- **Push** to `main` or `develop` branches
+- **Pull Requests** to `main` branch
 
-3. **Vercel Deployment** (`.github/workflows/deploy-vercel.yml`)
-   - Frontend deployment to Vercel
-   - Preview deployments for PRs
-
-### Environment Variables for Deployment
-
-Set these secrets in your GitHub repository:
-
-**For Heroku:**
-- `HEROKU_API_KEY`
-- `HEROKU_APP_NAME`
-- `HEROKU_EMAIL`
-
-**For Vercel:**
-- `VERCEL_TOKEN`
-- `VERCEL_ORG_ID`
-- `VERCEL_PROJECT_ID`
-- `VITE_API_URL`
+### Build Artifacts
+- Production-ready build files
+- Server code and dependencies
+- Available for 30 days after each run
 
 ## 🔒 Security Features
 
@@ -214,6 +195,7 @@ Set these secrets in your GitHub repository:
 - CORS configuration
 - File upload restrictions
 - Environment variable protection
+- Automated security scanning
 
 ## 🤝 Contributing
 
@@ -238,6 +220,8 @@ Set these secrets in your GitHub repository:
 - [ ] Multi-vendor marketplace features
 - [ ] Inventory management automation
 - [ ] Customer loyalty program
+- [ ] Docker containerization
+- [ ] Kubernetes deployment
 
 ## 🐛 Issue Reporting
 

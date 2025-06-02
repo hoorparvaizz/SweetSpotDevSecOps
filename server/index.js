@@ -25,11 +25,6 @@ app.use(cors({
             return callback(null, true);
         }
         
-        // Allow Heroku app domain
-        if (origin && origin.includes('.herokuapp.com')) {
-            return callback(null, true);
-        }
-        
         // Allow specific origins in production
         const allowedOrigins = [
             'http://localhost:5173',
