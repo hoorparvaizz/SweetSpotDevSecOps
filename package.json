@@ -7,7 +7,8 @@
     "dev": "concurrently \"vite\" \"cross-env NODE_ENV=development node server/index.js\"",
     "build": "vite build && esbuild server/index.js --platform=node --packages=external --bundle --format=esm --outdir=dist",
     "start": "cross-env NODE_ENV=production node dist/index.js",
-    "test": "jest"
+    "test": "jest",
+    "heroku-postbuild": "npm run build"
   },
   "dependencies": {
     "@hookform/resolvers": "^3.10.0",
@@ -100,7 +101,8 @@
     "@testing-library/react": "^14.0.0",
     "@testing-library/jest-dom": "^6.0.0",
     "@testing-library/user-event": "^14.0.0",
-    "babel-jest": "^29.0.0"
+    "babel-jest": "^29.0.0",
+    "supertest": "^6.3.3"
   },
   "optionalDependencies": {
     "bufferutil": "^4.0.8"

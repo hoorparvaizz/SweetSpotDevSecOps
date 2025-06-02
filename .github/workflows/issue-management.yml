@@ -1,0 +1,113 @@
+name: Issue and PR Management
+
+on:
+  issues:
+    types: [opened, edited, closed]
+  pull_request:
+    types: [opened, edited, closed]
+
+jobs:
+  label-issues:
+    runs-on: ubuntu-latest
+    if: github.event_name == 'issues' && github.event.action == 'opened'
+    
+    steps:
+    - name: Add labels to new issues
+      uses: actions/github-script@v7
+      with:
+        script: |
+          const issue = context.payload.issue;
+          const title = issue.title.toLowerCase();
+          const body = issue.body?.toLowerCase() || '';
+          
+          let labels = ['triage'];
+          
+          // Add labels based on title/content
+          if (title.includes('bug') || body.includes('error') || body.includes('bug')) {
+            labels.push('bug');
+          }
+          if (title.includes('feature') || title.includes('enhancement')) {
+            labels.push('enhancement');
+          }
+          if (title.includes('documentation') || title.includes('docs')) {
+            labels.push('documentation');
+          }
+          if (title.includes('security') || body.includes('security')) {
+            labels.push('security');
+          }
+          if (title.includes('frontend') || body.includes('frontend') || body.includes('react')) {
+            labels.push('frontend');
+          }
+          if (title.includes('backend') || body.includes('backend') || body.includes('server')) {
+            labels.push('backend');
+          }
+          if (title.includes('database') || body.includes('mongodb') || body.includes('database')) {
+            labels.push('database');
+          }
+          
+          await github.rest.issues.addLabels({
+            owner: context.repo.owner,
+            repo: context.repo.repo,
+            issue_number: issue.number,
+            labels: labels
+          });
+
+  welcome-contributor:
+    runs-on: ubuntu-latest
+    if: github.event_name == 'pull_request' && github.event.action == 'opened'
+    
+    steps:
+    - name: Welcome new contributors
+      uses: actions/github-script@v7
+      with:
+        script: |
+          const pr = context.payload.pull_request;
+          const author = pr.user.login;
+          
+          // Check if this is the user's first PR
+          const { data: prs } = await github.rest.pulls.list({
+            owner: context.repo.owner,
+            repo: context.repo.repo,
+            creator: author,
+            state: 'all'
+          });
+          
+          if (prs.length === 1) {
+            await github.rest.issues.createComment({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: pr.number,
+              body: `🎉 Welcome to SweetSpot Marketplace, @${author}! 
+              
+              Thank you for your first contribution! Your pull request will be reviewed soon.
+              
+              Please make sure:
+              - [ ] Your code follows our coding standards
+              - [ ] Tests are included (if applicable)
+              - [ ] Documentation is updated (if applicable)
+              - [ ] The build passes
+              
+              Feel free to ask questions if you need any help! 🚀`
+            });
+          }
+
+  stale-issues:
+    runs-on: ubuntu-latest
+    if: github.event_name == 'schedule'
+    
+    steps:
+    - name: Mark stale issues
+      uses: actions/stale@v9
+      with:
+        stale-issue-message: |
+          This issue has been automatically marked as stale because it has not had 
+          recent activity. It will be closed if no further activity occurs within 7 days.
+          Thank you for your contributions!
+        stale-pr-message: |
+          This pull request has been automatically marked as stale because it has not had 
+          recent activity. It will be closed if no further activity occurs within 7 days.
+          Thank you for your contributions!
+        stale-issue-label: 'stale'
+        stale-pr-label: 'stale'
+        days-before-stale: 30
+        days-before-close: 7 

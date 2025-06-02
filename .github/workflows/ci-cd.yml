@@ -1,0 +1,215 @@
+name: SweetSpot Marketplace CI/CD
+
+on:
+  push:
+    branches: [ main, develop ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    
+    strategy:
+      matrix:
+        node-version: [18.x, 20.x]
+    
+    services:
+      mongodb:
+        image: mongo:latest
+        ports:
+          - 27017:27017
+        options: >-
+          --health-cmd "mongosh --eval 'db.runCommand({ping: 1})'"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v4
+
+    - name: Use Node.js ${{ matrix.node-version }}
+      uses: actions/setup-node@v4
+      with:
+        node-version: ${{ matrix.node-version }}
+        cache: 'npm'
+
+    - name: Install dependencies
+      run: npm ci
+
+    - name: Create uploads directory
+      run: mkdir -p uploads server/uploads
+
+    - name: Set up environment variables
+      run: |
+        echo "MONGODB_URI=mongodb://localhost:27017/sweetspot_test" >> $GITHUB_ENV
+        echo "JWT_SECRET=test-secret-key-for-github-actions" >> $GITHUB_ENV
+        echo "NODE_ENV=test" >> $GITHUB_ENV
+        echo "PORT=3001" >> $GITHUB_ENV
+
+    - name: Wait for MongoDB to be ready
+      run: |
+        until mongosh --eval "print('MongoDB is ready')"; do
+          echo "Waiting for MongoDB..."
+          sleep 2
+        done
+
+    - name: Run server tests
+      run: npm run test
+      env:
+        MONGODB_URI: mongodb://localhost:27017/sweetspot_test
+        JWT_SECRET: test-secret-key-for-github-actions
+        NODE_ENV: test
+
+    - name: Build client
+      run: npm run build
+
+    - name: Run client tests (if any)
+      run: |
+        if [ -f "client/package.json" ]; then
+          cd client && npm test --passWithNoTests
+        fi
+
+  build:
+    needs: test
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v4
+
+    - name: Use Node.js 20.x
+      uses: actions/setup-node@v4
+      with:
+        node-version: 20.x
+        cache: 'npm'
+
+    - name: Install dependencies
+      run: npm ci
+
+    - name: Build application
+      run: npm run build
+
+    - name: Archive production artifacts
+      uses: actions/upload-artifact@v4
+      with:
+        name: dist-files
+        path: |
+          dist/
+          server/
+          package.json
+          package-lock.json
+        retention-days: 30
+
+  security-scan:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v4
+
+    - name: Use Node.js 20.x
+      uses: actions/setup-node@v4
+      with:
+        node-version: 20.x
+        cache: 'npm'
+
+    - name: Install dependencies
+      run: npm ci
+
+    - name: Run security audit
+      run: npm audit --audit-level=moderate
+
+    - name: Run dependency check
+      run: npx depcheck
+
+  code-quality:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v4
+
+    - name: Use Node.js 20.x
+      uses: actions/setup-node@v4
+      with:
+        node-version: 20.x
+        cache: 'npm'
+
+    - name: Install dependencies
+      run: npm ci
+
+    - name: Check code formatting (if prettier exists)
+      run: |
+        if [ -f ".prettierrc" ] || [ -f "prettier.config.js" ]; then
+          npx prettier --check .
+        fi
+
+    - name: Run ESLint (if exists)
+      run: |
+        if [ -f ".eslintrc" ] || [ -f ".eslintrc.js" ] || [ -f ".eslintrc.json" ]; then
+          npx eslint . --ext .js,.jsx
+        fi
+
+  deploy-staging:
+    needs: [test, build, security-scan]
+    runs-on: ubuntu-latest
+    if: github.ref == 'refs/heads/develop'
+    
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v4
+
+    - name: Download build artifacts
+      uses: actions/download-artifact@v4
+      with:
+        name: dist-files
+
+    - name: Deploy to staging
+      run: |
+        echo "🚀 Deploying to staging environment..."
+        echo "This is where you would deploy to your staging server"
+        # Add your staging deployment commands here
+        # Example: rsync, scp, or deployment service API calls
+
+  deploy-production:
+    needs: [test, build, security-scan]
+    runs-on: ubuntu-latest
+    if: github.ref == 'refs/heads/main'
+    environment: production
+    
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v4
+
+    - name: Download build artifacts
+      uses: actions/download-artifact@v4
+      with:
+        name: dist-files
+
+    - name: Deploy to production
+      run: |
+        echo "🚀 Deploying to production environment..."
+        echo "This is where you would deploy to your production server"
+        # Add your production deployment commands here
+        # Examples:
+        # - Deploy to Heroku: git push heroku main
+        # - Deploy to Vercel: vercel --prod
+        # - Deploy to DigitalOcean, AWS, etc.
+
+  notify:
+    needs: [deploy-production, deploy-staging]
+    runs-on: ubuntu-latest
+    if: always()
+    
+    steps:
+    - name: Notify deployment status
+      run: |
+        if [ "${{ needs.deploy-production.result }}" == "success" ]; then
+          echo "✅ Production deployment successful!"
+        elif [ "${{ needs.deploy-staging.result }}" == "success" ]; then
+          echo "✅ Staging deployment successful!"
+        else
+          echo "❌ Deployment failed or skipped"
+        fi 

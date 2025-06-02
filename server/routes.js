@@ -39,6 +39,29 @@ if (!process.env.JWT_SECRET) {
 export async function registerRoutes(app) {
     app.use(express.json());
 
+    // HEALTH CHECK ENDPOINT
+    app.get("/api/health", async (req, res) => {
+        try {
+            // Check database connection
+            const dbStatus = mongoose.connection.readyState === 1 ? 'connected' : 'disconnected';
+            
+            res.json({
+                status: 'ok',
+                timestamp: new Date().toISOString(),
+                uptime: process.uptime(),
+                database: dbStatus,
+                version: process.env.npm_package_version || '1.0.0',
+                environment: process.env.NODE_ENV || 'development'
+            });
+        } catch (error) {
+            res.status(503).json({
+                status: 'error',
+                message: 'Service unavailable',
+                error: error.message
+            });
+        }
+    });
+
     // AUTH ROUTES
     app.post("/api/auth/signup", async (req, res) => {
         try {
