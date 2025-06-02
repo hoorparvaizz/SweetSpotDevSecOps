@@ -9,21 +9,22 @@ workflows:
       - integration-tests
       - performance-tests
       - security-scan
-      - deploy-staging:
-          requires:
-            - integration-tests
-            - security-scan
-          filters:
-            branches:
-              only: develop
-      - deploy-production:
-          requires:
-            - integration-tests
-            - performance-tests
-            - security-scan
-          filters:
-            branches:
-              only: main
+      # Disable deployment jobs for now - they're just for testing CI/CD setup
+      # - deploy-staging:
+      #     requires:
+      #       - integration-tests
+      #       - security-scan
+      #     filters:
+      #       branches:
+      #         only: develop
+      # - deploy-production:
+      #     requires:
+      #       - integration-tests
+      #       - performance-tests
+      #       - security-scan
+      #     filters:
+      #       branches:
+      #         only: main
 
 jobs:
   integration-tests:
@@ -122,6 +123,8 @@ jobs:
           command: |
             npm run security:scan
 
+  # Deployment jobs commented out for testing phase
+  # Can be re-enabled when proper staging/production configs are set up
   deploy-staging:
     docker:
       - image: cimg/node:18.17
@@ -137,7 +140,7 @@ jobs:
           name: Build Application with Doppler (if token exists) or fallback
           command: |
             if [ -n "${DOPPLER_TOKEN}" ]; then
-              echo "Building with Doppler environment variables"
+              echo "Building with Doppler environment variables (using dev config for testing)"
               doppler secrets download --no-file --format=env-no-quotes > .env.ci
               set -a && source .env.ci && set +a
             else
@@ -147,7 +150,7 @@ jobs:
             npm run build
           environment:
             DOPPLER_PROJECT: sweetspotmarketplace
-            DOPPLER_CONFIG: stg
+            DOPPLER_CONFIG: dev  # Use dev config for testing
       - run:
           name: Deploy to Staging
           command: |
@@ -166,7 +169,7 @@ jobs:
             npm run test:smoke
           environment:
             DOPPLER_PROJECT: sweetspotmarketplace
-            DOPPLER_CONFIG: stg
+            DOPPLER_CONFIG: dev  # Use dev config for testing
       - store_artifacts:
           path: ./dist
           destination: staging-build
@@ -186,7 +189,7 @@ jobs:
           name: Build Application with Doppler (if token exists) or fallback
           command: |
             if [ -n "${DOPPLER_TOKEN}" ]; then
-              echo "Building with Doppler environment variables"
+              echo "Building with Doppler environment variables (using dev config for testing)"
               doppler secrets download --no-file --format=env-no-quotes > .env.ci
               set -a && source .env.ci && set +a
             else
@@ -196,7 +199,7 @@ jobs:
             npm run build
           environment:
             DOPPLER_PROJECT: sweetspotmarketplace
-            DOPPLER_CONFIG: prd
+            DOPPLER_CONFIG: dev  # Use dev config for testing
       - run:
           name: Deploy to Production
           command: |
@@ -215,7 +218,7 @@ jobs:
             npm run test:health
           environment:
             DOPPLER_PROJECT: sweetspotmarketplace
-            DOPPLER_CONFIG: prd
+            DOPPLER_CONFIG: dev  # Use dev config for testing
       - store_artifacts:
           path: ./dist
           destination: production-build
