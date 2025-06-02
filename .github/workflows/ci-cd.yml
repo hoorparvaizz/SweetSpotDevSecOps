@@ -59,10 +59,24 @@ jobs:
           sleep 2
         done
 
-    - name: Run tests with Doppler
-      run: doppler run -- npm test -- --passWithNoTests --detectOpenHandles --forceExit --maxWorkers=1
+    - name: Run tests with Doppler (if token exists) or fallback
+      run: |
+        if [ -n "${{ secrets.DOPPLER_TOKEN }}" ]; then
+          echo "Using Doppler for environment variables"
+          doppler secrets download --no-file --format=env-no-quotes > .env.ci
+          source .env.ci
+        else
+          echo "Using fallback environment variables"
+          echo "MONGODB_URI=mongodb://127.0.0.1:27017/sweetspot_test" >> $GITHUB_ENV
+          echo "JWT_SECRET=test-secret-key-for-github-actions" >> $GITHUB_ENV
+          echo "NODE_ENV=test" >> $GITHUB_ENV
+          echo "PORT=3001" >> $GITHUB_ENV
+        fi
+        npm test -- --passWithNoTests --detectOpenHandles --forceExit --maxWorkers=1
       env:
         DOPPLER_TOKEN: ${{ secrets.DOPPLER_TOKEN }}
+        DOPPLER_PROJECT: sweetspotmarketplace
+        DOPPLER_CONFIG: dev
         CI: true
 
   build:
@@ -88,10 +102,21 @@ jobs:
     - name: Create required directories
       run: mkdir -p uploads
 
-    - name: Build application with Doppler
-      run: doppler run -- npm run build
+    - name: Build application with Doppler (if token exists) or fallback
+      run: |
+        if [ -n "${{ secrets.DOPPLER_TOKEN }}" ]; then
+          echo "Building with Doppler environment variables"
+          doppler secrets download --no-file --format=env-no-quotes > .env.ci
+          source .env.ci
+        else
+          echo "Building with fallback environment variables"
+          export NODE_ENV=production
+        fi
+        npm run build
       env:
         DOPPLER_TOKEN: ${{ secrets.DOPPLER_TOKEN }}
+        DOPPLER_PROJECT: sweetspotmarketplace
+        DOPPLER_CONFIG: dev
 
     - name: Archive production artifacts
       uses: actions/upload-artifact@v4
