@@ -9,5 +9,10 @@ export default {
     '/dist/',
     '/coverage/'
   ],
-  verbose: true
+  setupFilesAfterEnv: ['<rootDir>/jest.setup.js'],
+  verbose: true,
+  detectOpenHandles: true,
+  forceExit: true,
+  maxWorkers: 1,
+  testTimeout: 30000
 }; 

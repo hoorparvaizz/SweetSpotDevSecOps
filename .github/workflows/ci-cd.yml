@@ -16,11 +16,11 @@ jobs:
     
     services:
       mongodb:
-        image: mongo:latest
+        image: mongo:4.4
         ports:
           - 27017:27017
         options: >-
-          --health-cmd "mongosh --eval 'db.runCommand({ping: 1})'"
+          --health-cmd "mongo --eval 'db.runCommand({ping: 1})'"
           --health-interval 10s
           --health-timeout 5s
           --health-retries 5
@@ -47,21 +47,29 @@ jobs:
 
     - name: Set up environment variables
       run: |
-        echo "MONGODB_URI=mongodb://localhost:27017/sweetspot_test" >> $GITHUB_ENV
+        echo "MONGODB_URI=mongodb://127.0.0.1:27017/sweetspot_test" >> $GITHUB_ENV
         echo "JWT_SECRET=test-secret-key-for-github-actions" >> $GITHUB_ENV
         echo "NODE_ENV=test" >> $GITHUB_ENV
         echo "PORT=3001" >> $GITHUB_ENV
 
     - name: Wait for MongoDB to be ready
       run: |
-        timeout 30 bash -c 'until mongosh --eval "print(\"MongoDB is ready\")"; do sleep 2; done'
+        for i in {1..30}; do
+          if curl -s http://127.0.0.1:27017 | grep -q "It looks like you are trying to access MongoDB"; then
+            echo "MongoDB is ready"
+            break
+          fi
+          echo "Waiting for MongoDB..."
+          sleep 2
+        done
 
     - name: Run tests
-      run: npm test -- --passWithNoTests --detectOpenHandles --forceExit
+      run: npm test -- --passWithNoTests --detectOpenHandles --forceExit --maxWorkers=1
       env:
-        MONGODB_URI: mongodb://localhost:27017/sweetspot_test
+        MONGODB_URI: mongodb://127.0.0.1:27017/sweetspot_test
         JWT_SECRET: test-secret-key-for-github-actions
         NODE_ENV: test
+        CI: true
 
   build:
     needs: test
