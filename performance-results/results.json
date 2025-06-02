@@ -1,0 +1,23 @@
+{
+  "timestamp": "2025-06-02T12:10:24.707Z",
+  "totalDuration": 757,
+  "tests": [
+    {
+      "name": "Database Connection Test",
+      "duration": 100
+    },
+    {
+      "name": "API Response Time Test",
+      "duration": 200
+    },
+    {
+      "name": "Memory Usage Test",
+      "duration": 150
+    },
+    {
+      "name": "CPU Load Test",
+      "duration": 300
+    }
+  ],
+  "status": "PASSED"
+}

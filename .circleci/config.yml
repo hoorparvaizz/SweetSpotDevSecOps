@@ -29,7 +29,7 @@ jobs:
   integration-tests:
     docker:
       - image: cimg/node:18.17
-      - image: cimg/mongo:4.4
+      - image: mongo:4.4
         environment:
           MONGO_INITDB_DATABASE: sweetspot_test
     resource_class: medium
@@ -40,23 +40,22 @@ jobs:
           name: Wait for MongoDB
           command: |
             for i in {1..30}; do
-              if mongo --eval "db.runCommand({ping: 1})" > /dev/null 2>&1; then
+              if mongosh --eval "db.runCommand({ping: 1})" --quiet > /dev/null 2>&1; then
                 echo "MongoDB is ready"
+                break
+              elif mongo --eval "db.runCommand({ping: 1})" --quiet > /dev/null 2>&1; then
+                echo "MongoDB is ready (using mongo client)"
                 break
               fi
               echo "Waiting for MongoDB... ($i/30)"
               sleep 2
             done
       - run:
-          name: Create Test Database
-          command: |
-            mongo sweetspot_test --eval "db.createCollection('test')"
-      - run:
           name: Run Integration Tests
           command: |
             npm run test:integration
           environment:
-            MONGODB_URI: mongodb://localhost:27017/sweetspot_test
+            MONGODB_URI: mongodb://127.0.0.1:27017/sweetspot_test
             JWT_SECRET: test-secret-for-circleci-integration
             NODE_ENV: test
             PORT: 3001
@@ -109,7 +108,7 @@ jobs:
       - run:
           name: Run Smoke Tests
           command: |
-            npm run test:smoke -- --env=staging
+            npm run test:smoke
       - store_artifacts:
           path: ./dist
           destination: staging-build
@@ -131,7 +130,7 @@ jobs:
       - run:
           name: Run Health Check
           command: |
-            npm run test:health -- --env=production
+            npm run test:health
       - store_artifacts:
           path: ./dist
           destination: production-build
