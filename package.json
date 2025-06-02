@@ -101,7 +101,10 @@
     "@testing-library/jest-dom": "^6.0.0",
     "@testing-library/user-event": "^14.0.0",
     "babel-jest": "^29.0.0",
-    "supertest": "^6.3.3"
+    "supertest": "^6.3.3",
+    "@babel/core": "^7.22.0",
+    "@babel/preset-env": "^7.22.0",
+    "@babel/preset-react": "^7.22.0"
   },
   "optionalDependencies": {
     "bufferutil": "^4.0.8"
