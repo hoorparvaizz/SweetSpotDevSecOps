@@ -48,9 +48,10 @@ export default function CustomerHome() {
                 Made with Love
               </h1>
               <p className="text-lg text-white/80">
-                Discover handcrafted desserts from local artisans. From delicate
-                macarons to rich chocolate truffles, every bite tells a story of
-                passion and craftsmanship.
+                Discover extraordinary handcrafted desserts from passionate 
+                local artisans. From delicate French macarons to rich Belgian 
+                chocolate truffles, every creation tells a story of dedication 
+                and artistry.
               </p>
             </div>
             <div className="flex flex-wrap gap-4">
@@ -82,26 +83,38 @@ export default function CustomerHome() {
 
           <div className="relative hidden lg:block">
             <div className="relative rounded-3xl overflow-hidden shadow-2xl">
-              <div className="w-full h-96 gradient-warm flex items-center justify-center">
-                <div className="text-center space-y-4">
-                  <div className="text-8xl">🧁</div>
-                  <p className="text-white font-medium">
-                    Beautiful Artisan Desserts
+              <div className="w-full h-96 gradient-warm flex items-center justify-center relative">
+                <div className="text-center space-y-4 z-20 relative">
+                  <p className="text-white font-bold text-2xl">
+                    Premium Artisan Collection
+                  </p>
+                  <p className="text-white/90 text-base">
+                    Handcrafted daily with love & passion
                   </p>
                 </div>
+                
+                {/* Scattered Dessert Emojis - Lower z-index so they stay behind text and adjusted positions */}
+                <div className="text-6xl animate-bounce absolute top-20 left-20 z-10" style={{ animationDelay: "0.8s" }}>🍰</div>
+                <div className="text-6xl animate-bounce absolute top-32 right-16 z-10" style={{ animationDelay: "1.2s" }}>🍫</div>
+                <div className="text-6xl animate-bounce absolute bottom-32 left-16 z-10" style={{ animationDelay: "1.6s" }}>🍪</div>
+                <div className="text-5xl animate-bounce absolute top-12 right-32 z-10" style={{ animationDelay: "2s" }}>🍩</div>
+                <div className="text-5xl animate-bounce absolute bottom-20 right-24 z-10" style={{ animationDelay: "2.4s" }}>🥧</div>
+                <div className="text-5xl animate-bounce absolute top-1/3 left-8 z-10" style={{ animationDelay: "2.8s" }}>🍭</div>
+                <div className="text-4xl animate-bounce absolute bottom-16 left-32 z-10" style={{ animationDelay: "3.2s" }}>🧇</div>
+                <div className="text-4xl animate-bounce absolute top-20 right-12 z-10" style={{ animationDelay: "3.6s" }}>🍮</div>
               </div>
 
-              {/* Floating Cards */}
-              <div className="absolute -top-4 -left-4 bg-white/90 backdrop-blur rounded-2xl p-4 shadow-xl">
+              {/* Floating Cards - Positioned to be fully visible */}
+              <div className="absolute top-4 left-4 bg-white/95 backdrop-blur rounded-2xl p-3 shadow-xl animate-bounce z-30" style={{ animationDelay: "0.3s" }}>
                 <div className="flex items-center space-x-2">
-                  <div className="w-3 h-3 bg-green-400 rounded-full"></div>
+                  <div className="w-3 h-3 bg-green-400 rounded-full animate-pulse"></div>
                   <span className="text-sm font-medium text-gray-800">
                     Fresh Daily
                   </span>
                 </div>
               </div>
 
-              <div className="absolute -bottom-4 -right-4 bg-white/90 backdrop-blur rounded-2xl p-4 shadow-xl">
+              <div className="absolute bottom-4 right-4 bg-white/95 backdrop-blur rounded-2xl p-3 shadow-xl animate-bounce z-30" style={{ animationDelay: "0.7s" }}>
                 <div className="text-center">
                   <div className="text-lg font-bold text-primary">4.9★</div>
                   <div className="text-sm text-gray-600">Top Rated</div>

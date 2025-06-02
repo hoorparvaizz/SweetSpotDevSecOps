@@ -29,6 +29,7 @@ import { apiRequest } from "@/lib/queryClient";
 import LoadingSpinner from "@/components/ui/LoadingSpinner";
 import { MapPin, CreditCard, Clock, Check } from "lucide-react";
 import { z } from "zod";
+import { getFullImageUrl } from "@/lib/utils";
 
 // Swiggy-style checkout schema
 const checkoutSchema = z.object({
@@ -105,6 +106,7 @@ export default function Checkout() {
         description: `Your order #${order._id || order.id} has been placed and will be prepared shortly.`,
       });
       queryClient.invalidateQueries({ queryKey: ["/api/orders"] });
+      clearCart.mutate();
       setLocation(`/orders/${order._id || order.id}`);
     },
     onError: (error) => {
@@ -451,7 +453,7 @@ export default function Checkout() {
                       <div className="w-12 h-12 rounded-lg overflow-hidden flex-shrink-0">
                         {item.product.imageUrl ? (
                           <img
-                            src={item.product.imageUrl}
+                            src={getFullImageUrl(item.product.imageUrl)}
                             alt={item.product.name}
                             className="w-full h-full object-cover"
                           />

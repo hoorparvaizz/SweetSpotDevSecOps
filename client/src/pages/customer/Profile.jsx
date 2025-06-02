@@ -28,8 +28,9 @@ import Orders from "./Orders";
 
 export default function Profile() {
   console.log("Profile component rendered");
-  const { user } = useAuth();
+  const { user, logout } = useAuth();
   const { favorites, isLoading: favoritesLoading } = useFavorites();
+  console.log("Favorites data in Profile:", favorites);
   const [activeTab, setActiveTab] = useState("overview");
   const { data: orders = [], isLoading: ordersLoading } = useQuery({
     queryKey: ["/api/orders"],
@@ -76,9 +77,16 @@ export default function Profile() {
     console.log("Delete button clicked");
     if (!window.confirm("Are you sure you want to delete your account? This action cannot be undone.")) return;
     try {
-      await fetch("/api/account", { method: "DELETE", credentials: "include" });
-      localStorage.removeItem("sweetspot_user");
-      // window.location.href = "/login";
+      const response = await fetch("/api/account", { method: "DELETE", credentials: "include" });
+      if (response.ok) {
+        toast({
+          title: "Account Deleted",
+          description: "Your account has been successfully deleted.",
+        });
+        logout();
+      } else {
+        throw new Error("Failed to delete account");
+      }
     } catch (err) {
       toast({
         title: "Error",
@@ -271,7 +279,7 @@ export default function Profile() {
               ) : (
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                   {favorites.map((favorite) => (
-                    <ProductCard key={favorite.product?._id || favorite.id} product={favorite.product} />
+                    <ProductCard key={favorite.productId?._id || favorite.id} product={favorite.productId} />
                   ))}
                 </div>
               )}

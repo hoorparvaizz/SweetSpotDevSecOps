@@ -6,6 +6,7 @@ import { Badge } from "@/components/ui/badge";
 import { Card, CardContent } from "@/components/ui/card";
 import { Textarea } from "@/components/ui/textarea";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useCart } from "@/hooks/useCart";
 import { useFavorites } from "@/hooks/useFavorites";
 import { useToast } from "@/hooks/use-toast";
@@ -213,16 +214,17 @@ export default function ProductDetail() {
             </div>
             <div>
               <label className="block text-sm font-medium mb-1">Frosting</label>
-              <select
-                className="w-full border rounded px-3 py-2"
-                value={frosting}
-                onChange={e => setFrosting(e.target.value)}
-              >
-                <option>Chocolate Ganache</option>
-                <option>Vanilla Buttercream</option>
-                <option>Strawberry Cream</option>
-                <option>Lemon Zest</option>
-              </select>
+              <Select value={frosting} onValueChange={setFrosting}>
+                <SelectTrigger className="w-full">
+                  <SelectValue placeholder="Select frosting type" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="Chocolate Ganache">Chocolate Ganache</SelectItem>
+                  <SelectItem value="Vanilla Buttercream">Vanilla Buttercream</SelectItem>
+                  <SelectItem value="Strawberry Cream">Strawberry Cream</SelectItem>
+                  <SelectItem value="Lemon Zest">Lemon Zest</SelectItem>
+                </SelectContent>
+              </Select>
             </div>
             <div>
               <label className="block text-sm font-medium mb-1">Cake Message</label>

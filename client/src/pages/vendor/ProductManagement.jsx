@@ -46,6 +46,7 @@ import {
   AlertCircle,
   Package,
 } from "lucide-react";
+import { cn, getFullImageUrl } from "@/lib/utils";
 
 const productSchema = z.object({
   name: z.string().min(1, "Product name is required"),
@@ -567,7 +568,7 @@ function ProductForm({
         {currentImageUrl && !selectedImage && (
           <div className="mb-4 text-center">
             <img
-              src={`${currentImageUrl}${imageCacheBuster ? `?t=${imageCacheBuster}` : ""}`}
+              src={getFullImageUrl(`${currentImageUrl}${imageCacheBuster ? `?t=${imageCacheBuster}` : ""}`)}
               alt="Current product"
               className="mx-auto h-32 object-contain rounded-lg border"
               style={{ maxWidth: 160 }}

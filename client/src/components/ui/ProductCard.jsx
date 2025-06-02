@@ -15,6 +15,11 @@ export default function ProductCard({
   onEdit,
   onDelete,
 }) {
+  // Safety check to prevent undefined errors
+  if (!product || !product._id) {
+    return null;
+  }
+
   const { user } = useAuth();
   const { cartItems, addToCart, updateCartItem } = useCart();
   const { isFavorite, toggleFavorite } = useFavorites();

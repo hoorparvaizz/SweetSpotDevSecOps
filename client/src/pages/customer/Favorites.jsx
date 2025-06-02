@@ -3,6 +3,7 @@ import ProductCard from "@/components/ui/ProductCard";
 
 export default function Favorites() {
   const { favorites, isLoading } = useFavorites();
+  console.log("Favorites data in standalone page:", favorites); // Debug log
 
   return (
     <div className="space-y-8">

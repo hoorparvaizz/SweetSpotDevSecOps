@@ -23,6 +23,7 @@ import {
 import { useToast } from "@/hooks/use-toast";
 import { apiRequest } from "@/lib/queryClient";
 import { OrderCardSkeleton } from "@/components/ui/SkeletonLoader";
+import { getFullImageUrl } from "@/lib/utils";
 import {
   Package,
   Search,
@@ -380,9 +381,9 @@ export default function OrderManagement() {
                         Order Items:
                       </p>
                       <div className="space-y-1">
-                        {order.orderItems.slice(0, 3).map((item) => (
+                        {order.orderItems.slice(0, 3).map((item, index) => (
                           <div
-                            key={item.id}
+                            key={item._id || item.id || index}
                             className="flex items-center justify-between text-sm"
                           >
                             <span>
@@ -507,15 +508,15 @@ function OrderDetailsDialog({ order, onStatusUpdate, isUpdating }) {
         <div className="space-y-3">
           <h3 className="font-semibold">Order Items</h3>
           <div className="space-y-3">
-            {order.orderItems.map((item) => (
+            {order.orderItems.map((item, index) => (
               <div
-                key={item.id}
+                key={item._id || item.id || index}
                 className="flex items-center space-x-4 p-3 border rounded-lg"
               >
                 <div className="w-12 h-12 rounded-lg overflow-hidden flex-shrink-0">
                   {item.product?.imageUrl ? (
                     <img
-                      src={item.product.imageUrl}
+                      src={getFullImageUrl(item.product.imageUrl)}
                       alt={item.product.name}
                       className="w-full h-full object-cover"
                     />
