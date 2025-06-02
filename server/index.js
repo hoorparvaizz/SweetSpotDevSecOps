@@ -25,6 +25,11 @@ app.use(cors({
             return callback(null, true);
         }
         
+        // Allow Heroku app domain
+        if (origin && origin.includes('.herokuapp.com')) {
+            return callback(null, true);
+        }
+        
         // Allow specific origins in production
         const allowedOrigins = [
             'http://localhost:5173',
@@ -92,9 +97,16 @@ app.use('/uploads', express.static(path.join(__dirname, '../uploads')));
 
 // Serve React build in production
 if (process.env.NODE_ENV === 'production') {
-    app.use(express.static(path.join(__dirname, '../client/dist')));
+    // Serve static files from the Vite build output
+    app.use(express.static(path.join(__dirname, '../dist')));
+    
+    // Handle all other routes by serving the React app
     app.get('*', (req, res) => {
-        res.sendFile(path.join(__dirname, '../client/dist/index.html'));
+        // Skip API routes and uploads
+        if (req.path.startsWith('/api') || req.path.startsWith('/uploads')) {
+            return next();
+        }
+        res.sendFile(path.join(__dirname, '../dist/index.html'));
     });
 }
 
