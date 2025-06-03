@@ -46,15 +46,19 @@ export default function Products() {
     isLoading,
     error,
   } = useQuery({
-    queryKey: [
-      "/api/products",
-      {
-        search: searchQuery,
-        category: selectedCategory === "all" ? undefined : selectedCategory,
-        dietary: selectedDietary === "all" ? undefined : selectedDietary,
-        isActive: true,
-      },
-    ],
+    queryKey: ["/api/products"],
+    queryFn: async () => {
+      const response = await fetch("http://localhost:3001/api/products?isActive=true", {
+        headers: {
+          'Accept': 'application/json',
+          'Content-Type': 'application/json',
+        },
+      });
+      if (!response.ok) {
+        throw new Error('Failed to fetch products');
+      }
+      return response.json();
+    },
   });
   const dietaryOptions = [
     { value: "vegan", label: "Vegan", icon: Leaf },
@@ -70,7 +74,8 @@ export default function Products() {
   };
   const handleSearch = (e) => {
     e.preventDefault();
-    // The query will automatically refetch due to the dependency
+    // Search now works automatically through filteredAndSortedProducts
+    // No need to manually trigger refetch since we're using client-side filtering
   };
   const clearFilters = () => {
     setSearchQuery("");
@@ -78,22 +83,6 @@ export default function Products() {
     setSelectedDietary("all");
     setSortBy("newest");
   };
-  const sortedProducts = [...products].sort((a, b) => {
-    switch (sortBy) {
-      case "price-low":
-        return parseFloat(a.price) - parseFloat(b.price);
-      case "price-high":
-        return parseFloat(b.price) - parseFloat(a.price);
-      case "name":
-        return a.name.localeCompare(b.name);
-      case "newest":
-      default:
-        return (
-          new Date(b.createdAt || 0).getTime() -
-          new Date(a.createdAt || 0).getTime()
-        );
-    }
-  });
   const hasActiveFilters = searchQuery || selectedCategory !== "all" || selectedDietary !== "all";
   // Demo products for empty state
   const demoProducts = [
@@ -143,6 +132,39 @@ export default function Products() {
       dietary: ["vegetarian"],
     },
   ];
+  // Client-side filtering and sorting
+  const filteredAndSortedProducts = products
+    .filter((product) => {
+      const matchesSearch = 
+        product.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        product.description?.toLowerCase().includes(searchQuery.toLowerCase());
+      
+      const matchesCategory = 
+        selectedCategory === "all" || 
+        (product.categoryId?._id === selectedCategory || product.categoryId === selectedCategory);
+      
+      const matchesDietary = 
+        selectedDietary === "all" || 
+        (product.dietary && product.dietary.includes(selectedDietary));
+
+      return matchesSearch && matchesCategory && matchesDietary;
+    })
+    .sort((a, b) => {
+      switch (sortBy) {
+        case "price-low":
+          return parseFloat(a.price) - parseFloat(b.price);
+        case "price-high":
+          return parseFloat(b.price) - parseFloat(a.price);
+        case "name":
+          return a.name.localeCompare(b.name);
+        case "newest":
+        default:
+          return (
+            new Date(b.createdAt || 0).getTime() -
+            new Date(a.createdAt || 0).getTime()
+          );
+      }
+    });
   return (
     <div className="space-y-8">
       {/* Header */}
@@ -274,7 +296,7 @@ export default function Products() {
         {/* Results count */}
         <div className="flex items-center justify-between">
           <p className="text-muted-foreground">
-            {isLoading ? "Loading..." : `${products.length} products found`}
+            {isLoading ? "Loading..." : `${filteredAndSortedProducts.length} products found`}
           </p>
         </div>
 
@@ -324,6 +346,24 @@ export default function Products() {
               </div>
             </div>
           </div>
+        ) : filteredAndSortedProducts.length === 0 ? (
+          <div className="text-center py-12 space-y-4">
+            <div className="text-6xl">🔍</div>
+            <h3 className="text-xl font-semibold text-foreground">
+              No products found
+            </h3>
+            <p className="text-muted-foreground">
+              Try adjusting your search criteria or clearing filters
+            </p>
+            {hasActiveFilters && (
+              <Button
+                onClick={clearFilters}
+                className="gradient-sweet text-white"
+              >
+                Clear All Filters
+              </Button>
+            )}
+          </div>
         ) : (
           <div
             className={
@@ -332,7 +372,7 @@ export default function Products() {
                 : "space-y-4"
             }
           >
-            {sortedProducts.map((product) => (
+            {filteredAndSortedProducts.map((product) => (
               <ProductCard key={product._id} product={product} />
             ))}
           </div>

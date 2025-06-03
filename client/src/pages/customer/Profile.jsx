@@ -68,6 +68,18 @@ export default function Profile() {
       day: "numeric",
     });
   };
+
+  const formatMemberSince = (dateString) => {
+    if (!dateString) return new Date().toLocaleDateString("en-US", {
+      year: "numeric",
+      month: "short",
+    });
+    return new Date(dateString).toLocaleDateString("en-US", {
+      year: "numeric",
+      month: "short",
+    });
+  };
+
   const recentOrders = orders.slice(0, 3);
   const totalSpent = orders.reduce(
     (sum, order) => sum + parseFloat(order.total),
@@ -236,7 +248,7 @@ export default function Profile() {
                   <div className="flex items-center space-x-3">
                     <Calendar className="h-4 w-4 text-muted-foreground" />
                     <span className="text-sm">
-                      Member since {formatOrderDate(user?.createdAt)}
+                      Member since {formatMemberSince(user?.createdAt)}
                     </span>
                   </div>
                 </div>

@@ -67,13 +67,6 @@ export default function VendorDashboard() {
         </div>
         <div className="flex space-x-3">
           <Button
-            className="gradient-sweet text-white"
-            onClick={() => setLocation("/vendor/products/new")}
-          >
-            <Plus className="h-4 w-4 mr-2" />
-            Add Product
-          </Button>
-          <Button
             variant="outline"
             onClick={() => setLocation("/vendor/orders")}
           >
@@ -243,12 +236,12 @@ export default function VendorDashboard() {
               <div className="space-y-4">
                 {recentOrders.slice(0, 5).map((order) => (
                   <div
-                    key={order.id}
+                    key={order._id || order.id}
                     className="flex items-center justify-between p-4 border rounded-xl hover:bg-muted/50 transition-colors"
                   >
                     <div className="space-y-1">
                       <div className="flex items-center space-x-2">
-                        <h4 className="font-medium">Order #{order.id}</h4>
+                        <h4 className="font-medium">Order #{order._id || order.id}</h4>
                         <Badge
                           variant={getOrderStatusColor(order.status)}
                           className="text-xs"
@@ -297,7 +290,7 @@ export default function VendorDashboard() {
                 <div className="space-y-2">
                   {lowStockProducts.slice(0, 3).map((product) => (
                     <div
-                      key={product.id}
+                      key={product._id || product.id}
                       className="flex items-center justify-between text-sm"
                     >
                       <span className="font-medium">{product.name}</span>
@@ -328,13 +321,6 @@ export default function VendorDashboard() {
               <CardTitle>Quick Actions</CardTitle>
             </CardHeader>
             <CardContent className="space-y-3">
-              <Button
-                className="w-full justify-start gradient-sweet text-white"
-                onClick={() => setLocation("/vendor/products/new")}
-              >
-                <Plus className="h-4 w-4 mr-2" />
-                Add New Product
-              </Button>
               <Button
                 variant="outline"
                 className="w-full justify-start"

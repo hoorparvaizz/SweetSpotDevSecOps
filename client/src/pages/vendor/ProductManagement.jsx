@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -47,6 +47,7 @@ import {
   Package,
 } from "lucide-react";
 import { cn, getFullImageUrl } from "@/lib/utils";
+import { useLocation } from "wouter";
 
 const productSchema = z.object({
   name: z.string().min(1, "Product name is required"),
@@ -63,6 +64,7 @@ const productSchema = z.object({
 export default function ProductManagement() {
   const { toast } = useToast();
   const queryClient = useQueryClient();
+  const [location, setLocation] = useLocation();
   const [searchQuery, setSearchQuery] = useState("");
   const [statusFilter, setStatusFilter] = useState("all");
   const [editingProduct, setEditingProduct] = useState(null);
@@ -311,6 +313,16 @@ export default function ProductManagement() {
       toast({ title: "Error", description: err.message, variant: "destructive" });
     },
   });
+
+  // Check if we're on the /new route and auto-open dialog
+  useEffect(() => {
+    if (location === "/vendor/products/new") {
+      setIsAddDialogOpen(true);
+      // Redirect to main products page to clean up URL
+      setLocation("/vendor/products");
+    }
+  }, [location, setLocation]);
+
   return (
     <div className="space-y-8">
       {/* Header/Toolbar */}
