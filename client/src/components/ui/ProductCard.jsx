@@ -152,10 +152,10 @@ export default function ProductCard({
                     onClick={(e) => {
                       e.stopPropagation();
                       if (cartQuantity > 1) {
-                        updateCartItem.mutate({ id: cartItem.id, quantity: cartQuantity - 1 });
+                        updateCartItem.mutate({ id: cartItem._id, quantity: cartQuantity - 1 });
                       } else {
                         // Remove from cart if quantity is 1
-                        updateCartItem.mutate({ id: cartItem.id, quantity: 0 });
+                        updateCartItem.mutate({ id: cartItem._id, quantity: 0 });
                       }
                     }}
                     disabled={updateCartItem.isPending}
@@ -169,7 +169,7 @@ export default function ProductCard({
                     onClick={(e) => {
                       e.stopPropagation();
                       if (product.stock > cartQuantity) {
-                        updateCartItem.mutate({ id: cartItem.id, quantity: cartQuantity + 1 });
+                        updateCartItem.mutate({ id: cartItem._id, quantity: cartQuantity + 1 });
                       }
                     }}
                     disabled={updateCartItem.isPending || cartQuantity >= product.stock}

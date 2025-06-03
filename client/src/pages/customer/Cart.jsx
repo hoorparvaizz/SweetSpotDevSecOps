@@ -36,9 +36,9 @@ export default function Cart() {
   const total = subtotal + deliveryFee + tax - promoDiscount;
   const handleQuantityChange = (item, newQuantity) => {
     if (newQuantity <= 0) {
-      removeFromCart.mutate(item.id);
+      removeFromCart.mutate(item._id);
     } else if (item.product && newQuantity <= item.product.stock) {
-      updateCartItem.mutate({ id: item.id, quantity: newQuantity });
+      updateCartItem.mutate({ id: item._id, quantity: newQuantity });
     }
   };
   const handleApplyPromo = () => {
@@ -107,7 +107,7 @@ export default function Cart() {
         {/* Cart Items */}
         <div className="lg:col-span-2 space-y-4">
           {cartItems.map((item) => (
-            <Card key={item.id} className="border-0 shadow-lg bg-card/50">
+            <Card key={item._id} className="border-0 shadow-lg bg-card/50">
               <CardContent className="p-6">
                 <div className="flex items-start space-x-4">
                   {/* Product Image */}
@@ -142,7 +142,7 @@ export default function Cart() {
                       <Button
                         variant="ghost"
                         size="sm"
-                        onClick={() => removeFromCart.mutate(item.id)}
+                        onClick={() => removeFromCart.mutate(item._id)}
                         disabled={removeFromCart.isPending || !item.product}
                         className="text-destructive hover:text-destructive"
                       >
@@ -168,7 +168,7 @@ export default function Cart() {
                           size="sm"
                           onClick={() => {
                             if (item.quantity === 1) {
-                              removeFromCart.mutate(item.id);
+                              removeFromCart.mutate(item._id);
                             } else {
                               handleQuantityChange(item, item.quantity - 1);
                             }

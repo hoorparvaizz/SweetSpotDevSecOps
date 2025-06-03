@@ -444,7 +444,7 @@ export async function registerRoutes(app) {
             const cartItems = await CartItem.find({ customerId }).populate('productId');
             // Map to flatten productId to product
             const result = cartItems.map(item => ({
-                id: item._id,
+                _id: item._id,
                 product: item.productId,
                 quantity: item.quantity,
                 specialRequests: item.specialRequests,
@@ -474,7 +474,7 @@ export async function registerRoutes(app) {
             // Populate productId for response
             await cartItem.populate('productId');
             res.status(201).json({
-                id: cartItem._id,
+                _id: cartItem._id,
                 product: cartItem.productId,
                 quantity: cartItem.quantity,
                 specialRequests: cartItem.specialRequests,
@@ -493,7 +493,7 @@ export async function registerRoutes(app) {
             let cartItem = await CartItem.findByIdAndUpdate(req.params.id, { quantity }, { new: true });
             if (cartItem) await cartItem.populate('productId');
             res.json(cartItem ? {
-                id: cartItem._id,
+                _id: cartItem._id,
                 product: cartItem.productId,
                 quantity: cartItem.quantity,
                 specialRequests: cartItem.specialRequests,
@@ -536,8 +536,18 @@ export async function registerRoutes(app) {
             const customerId = req.user.id;
             const { productId } = req.body;
             let favorite = await Favorite.findOne({ customerId, productId });
-            if (!favorite) favorite = await Favorite.create({ customerId, productId });
-            res.status(201).json(favorite);
+            if (!favorite) {
+                favorite = await Favorite.create({ customerId, productId });
+                res.status(201).json({ 
+                    message: "Product added to favorites",
+                    favorite: favorite 
+                });
+            } else {
+                res.status(200).json({ 
+                    message: "Product already in favorites",
+                    favorite: favorite 
+                });
+            }
         } catch (error) {
             res.status(400).json({ message: "Failed to add to favorites" });
         }

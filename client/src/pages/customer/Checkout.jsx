@@ -449,7 +449,7 @@ export default function Checkout() {
                 {/* Order Items */}
                 <div className="space-y-3">
                   {cartItems.map((item) => (
-                    <div key={item.id} className="flex items-center space-x-3">
+                    <div key={item._id} className="flex items-center space-x-3">
                       <div className="w-12 h-12 rounded-lg overflow-hidden flex-shrink-0">
                         {item.product.imageUrl ? (
                           <img

@@ -4,49 +4,49 @@ import { apiRequest } from "@/lib/queryClient";
 import { useAuth } from "@/hooks/useAuth";
 import { useToast } from "@/hooks/use-toast";
 
-const cartReducer = (state, action) => {
+function cartReducer(state, action) {
   switch (action.type) {
     case "SET_ITEMS":
       const total = action.payload.reduce(
-        (sum, item) => sum + parseFloat(item.product.price) * item.quantity,
-        0,
+        (sum, item) => sum + item.quantity * parseFloat(item.product?.price || 0),
+        0
       );
       return { ...state, items: action.payload, total };
-    case "SET_LOADING":
-      return { ...state, isLoading: action.payload };
     case "ADD_ITEM":
       const newItems = [...state.items, action.payload];
-      const newTotal = newItems.reduce(
-        (sum, item) => sum + parseFloat(item.product.price) * item.quantity,
-        0,
+      const addTotal = newItems.reduce(
+        (sum, item) => sum + item.quantity * parseFloat(item.product?.price || 0),
+        0
       );
-      return { ...state, items: newItems, total: newTotal };
+      return { ...state, items: newItems, total: addTotal };
     case "UPDATE_ITEM":
       const updatedItems = state.items.map((item) =>
-        item.id === action.payload.id
+        item._id === action.payload._id
           ? { ...item, quantity: action.payload.quantity }
-          : item,
+          : item
       );
-      const updatedTotal = updatedItems.reduce(
-        (sum, item) => sum + parseFloat(item.product.price) * item.quantity,
-        0,
+      const updateTotal = updatedItems.reduce(
+        (sum, item) => sum + item.quantity * parseFloat(item.product?.price || 0),
+        0
       );
-      return { ...state, items: updatedItems, total: updatedTotal };
+      return { ...state, items: updatedItems, total: updateTotal };
     case "REMOVE_ITEM":
       const filteredItems = state.items.filter(
-        (item) => item.id !== action.payload,
+        (item) => item._id !== action.payload,
       );
       const filteredTotal = filteredItems.reduce(
-        (sum, item) => sum + parseFloat(item.product.price) * item.quantity,
-        0,
+        (sum, item) => sum + item.quantity * parseFloat(item.product?.price || 0),
+        0
       );
       return { ...state, items: filteredItems, total: filteredTotal };
     case "CLEAR_CART":
       return { ...state, items: [], total: 0 };
+    case "SET_LOADING":
+      return { ...state, isLoading: action.payload };
     default:
       return state;
   }
-};
+}
 
 const CartContext = createContext(undefined);
 
