@@ -153,6 +153,11 @@ jobs:
             DOPPLER_PROJECT: sweetspotmarketplace
             DOPPLER_CONFIG: dev  # Use dev config for testing
       - run:
+          name: Start Backend Server
+          command: |
+            nohup npm start &
+            sleep 10  # Wait for server to start (adjust as needed)
+      - run:
           name: Deploy to Staging
           command: |
             npm run deploy:staging
