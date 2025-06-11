@@ -241,9 +241,6 @@ Found a bug? Please create an issue with:
 
 This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
 
-## 👥 Team
-
-- **Lead Developer**: [Hoor Parvaiz](https://github.com/hoorparvaizz)
 
 ## 🙏 Acknowledgments
 
@@ -263,3 +260,4 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 
 **Test case**
 **Final Test**
+**TEST**

@@ -180,7 +180,7 @@ jobs:
           echo "No prettier configuration found, skipping"
         fi
 
-    - name: Run ESLint (if exists)
+    - name: Run ESLint 
       run: |
         if [ -f ".eslintrc" ] || [ -f ".eslintrc.js" ] || [ -f ".eslintrc.json" ]; then
           npx eslint . --ext .js,.jsx || echo "ESLint check failed but not blocking"
