@@ -87,9 +87,9 @@ Below are key visuals from the project:
 - **Prometheus & Grafana Dashboards** – real-time performance metrics  
 - **Frontend UI** – vendor dashboard, product listings, cart & checkout flow  
 
-![CI/CD Workflow](docs/screenshots/github-actions.png)  
-![Grafana Dashboard](docs/screenshots/grafana.png)  
-![Frontend UI](docs/screenshots/frontend.png)  
+![CI/CD Workflow](docs/github-actions.png)  
+![Grafana Dashboard](docs/grafana.png)  
+![Landing Page](docs/landing.png)   
 
 ---
 
