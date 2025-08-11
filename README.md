@@ -86,10 +86,7 @@ Below are key visuals from the project:
 - **Doppler Secrets Management** – secure, centralized environment variables  
 - **Prometheus & Grafana Dashboards** – real-time performance metrics  
 - **Frontend UI** – vendor dashboard, product listings, cart & checkout flow  
-
-![CI/CD Workflow](docs/github-actions.png)  
-![Grafana Dashboard](docs/grafana.png)  
-![Landing Page](docs/landing.png)   
+📷 [See full project screenshots](docs/full-gallery.md)
 
 ---
 
