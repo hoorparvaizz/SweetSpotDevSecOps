@@ -5,7 +5,10 @@
 
 ## Monitoring & Observability
 ![Grafana Dashboard](grafana.png)
+![Prometheus](prometheus.png)
 
+## Doppler Secrets Management
+![Doppler Secrets](doppler-secrets.png)
 ## Frontend Experience
 
 ### Landing & Login
