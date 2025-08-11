@@ -1,0 +1,19 @@
+# 📷 SweetSpot – Full Project Screenshots
+
+## CI/CD & DevSecOps Tools
+![GitHub Actions Workflow](github-actions.png)
+
+## Monitoring & Observability
+![Grafana Dashboard](grafana.png)
+
+## Frontend Experience
+
+### Landing & Login
+![Landing Page](landing.png)
+![Role-Based Login](role-based.png)
+
+### Vendor Experience
+![Vendor Dashboard](vendor-dashboard.png)
+
+### Customer Experience
+![Customer Home Page](customer-home.png)
