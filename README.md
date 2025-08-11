@@ -4,7 +4,7 @@
 
 ---
 
-## 📌 Overview
+## Overview
 SweetSpot is a marketplace platform for artisan desserts, designed and developed with **DevSecOps principles** at its core.  
 It features:
 - A responsive, dynamic frontend for customers & vendors
@@ -17,7 +17,7 @@ This project showcases **end-to-end software delivery automation** using industr
 
 ---
 
-## 🚀 Tech Stack
+## Tech Stack
 
 ### **Frontend**
 - React.js + Tailwind CSS
@@ -43,7 +43,7 @@ This project showcases **end-to-end software delivery automation** using industr
 
 ---
 
-## 🔄 CI/CD Pipeline Highlights
+## CI/CD Pipeline Highlights
 - **Automated Linting & Testing:** ESLint + Jest + Postman API tests
 - **Static Code Analysis:** Codacy for vulnerabilities, code smells, and maintainability checks
 - **Containerization:** Dockerized frontend, backend, database, and monitoring stack
@@ -59,7 +59,7 @@ This project showcases **end-to-end software delivery automation** using industr
 
 ---
 
-## 🛡 Security Practices
+## Security Practices
 - JWT-based authentication with role-based access control
 - Encrypted password storage (bcrypt)
 - Centralized, access-controlled secrets with Doppler
@@ -68,7 +68,7 @@ This project showcases **end-to-end software delivery automation** using industr
 
 ---
 
-## 📊 Monitoring & Observability
+## Monitoring & Observability
 - **Prometheus** scrapes backend metrics (`/metrics` endpoint)
 - **Grafana** dashboards display:
   - API response times
@@ -78,7 +78,7 @@ This project showcases **end-to-end software delivery automation** using industr
 
 ---
 
-## 🎥 Showcase
+## Showcase
 
 Below are key visuals from the project:
 
@@ -90,14 +90,14 @@ Below are key visuals from the project:
 
 ---
 
-## 🎯 Key Features Delivered
+## Key Features Delivered
 - **Frontend (Hoor Parvaiz):** Vendor & customer dashboards, API integration, CI workflows, Postman testing, Doppler integration
 - **Backend (Ishika Mohol):** REST APIs, Docker orchestration, monitoring setup, Terraform deployment, Codacy integration
 - **Joint Contributions:** CRUD APIs, authentication system, Prometheus metrics, container orchestration
 
 ---
 
-## 📌 Future Enhancements
+## Future Enhancements
 - Kubernetes orchestration for scaling
 - ELK stack for centralized logging
 - Cloud deployment via AWS/GCP
@@ -105,7 +105,7 @@ Below are key visuals from the project:
 
 ---
 
-## 📚 References
+## References
 - [GitHub Actions Docs](https://docs.github.com/en/actions)
 - [CircleCI Docs](https://circleci.com/docs)
 - [Docker Docs](https://docs.docker.com)
@@ -115,6 +115,6 @@ Below are key visuals from the project:
 
 ---
 
-**👩‍💻 Developed By:**  
+**Developed By:**  
 - **Ishika Mohol** – Backend, Infrastructure, Monitoring  
 - **Hoor Parvaiz** – Frontend, CI/CD, API Testing, Secrets Management
