@@ -14,6 +14,10 @@
 
 ### Vendor Experience
 ![Vendor Dashboard](vendor-dashboard.png)
+![Vendor Order Managment](vendor-order-management.png)
+![Vendor Products](vendor-products.png)
 
 ### Customer Experience
 ![Customer Home Page](customer-home.png)
+![Customer Browsing with Category Filters](customer-browsing.png)
+![Customer Shopping Cart](customer-shopping-cart.png)
